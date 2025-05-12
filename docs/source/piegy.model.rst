@@ -103,6 +103,12 @@ The simulations are computationally intensive. See brief discussion of runtime a
         :rtype: ``piegy.model.simulation``
 
 
+    .. method:: clear()
+
+        Clear all data storage bins (``U``, ``V``, ``U_pi``, ``V_pi``): set all entries to 0.
+        Data type and shape are not changed.
+
+
     .. method:: change_maxtime(maxtime)
 
         Change ``maxtime`` and re-initialize data storage bins. 
@@ -120,13 +126,7 @@ The simulations are computationally intensive. See brief discussion of runtime a
         :param seed: the new seed
         :type seed: int
 
-
-    .. method:: clear_data()
-
-        Clear all data storage bins (``U``, ``V``, ``U_pi``, ``V_pi``): set all entries to 0.
-        Data type and shape are not changed.
-
-    .. method:: compress_data(compress_itv = 5)
+    .. method:: compress(compress_itv = 5)
 
         
         .. line-block::
@@ -147,8 +147,7 @@ The simulations are computationally intensive. See brief discussion of runtime a
 
 .. py:function:: model.run(sim, predict_runtime = False, message = '')
 
-    .. line-block::
-        Run simulations on ``sim``. All data are stored in ``sim``, no return value.
+    Run simulations on ``sim``. All data are stored in ``sim``, no return value. Only runs on empty simulation objects and raises error if not empty.
 
     :param sim: where all parameters of the model are stored. 
     :type sim: ``piegy.model.simulation`` object

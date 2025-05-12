@@ -57,7 +57,7 @@ def UV_heatmap(sim, U_color = 'Purples', V_color = 'Greens', start = 0.95, end =
                     For example, start = 0.8 means the interval should start from the 80% point of sim.maxtime.
         end:        (0,1) float, where the interval ends.
         annot:      bool, whether to add annotations (show exact numbers for every patch).
-        fmt:        Number format for annotations. How many digits you want to keep.
+        fmt:        Number format for annotations. How many digits you want to keep. Please set annot = True first and then use fmt.
 
     Returns:
         fig1, fig2: Two heatmaps of U, V distribution.
@@ -157,13 +157,14 @@ def UV_dyna(sim, interval = 20, grid = True):
         V_curve.append(np.sum(V_ave))
         total_curve.append(U_curve[-1] + V_curve[-1])
         
-    #### plot ####    
+    #### plot ####   
+    xaxis = np.linspace(0, sim.maxtime, len(U_curve))
 
     fig, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(U_curve, CURVE_TYPE, label = 'U')
-    ax.plot(V_curve, CURVE_TYPE, label = 'V')
-    ax.plot(total_curve, CURVE_TYPE, label = 'total')
+    ax.plot(xaxis, U_curve, CURVE_TYPE, label = 'U')
+    ax.plot(xaxis, V_curve, CURVE_TYPE, label = 'V')
+    ax.plot(xaxis, total_curve, CURVE_TYPE, label = 'total')
     ax.title.set_text('U & V over time')
     ax.legend()
 
@@ -172,9 +173,10 @@ def UV_dyna(sim, interval = 20, grid = True):
 
 
 
-def UV_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0, density = True):
+def UV_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
     '''
-    Makes histograms for U, V's average distribution over an interval.
+    Makes density histograms for U, V's average distribution over an interval.
+    Sometimes it may not be shown in density plots due to matplotlib features.
 
     Returns:
         fig1, fig2: Two Matplotlib histograms, for U and V, respectively.
@@ -228,11 +230,12 @@ def UV_std(sim, interval = 20, grid = True):
         V_std.append(np.std(V_ave))
     
     #### plot ####
+    xaxis = np.linspace(0, sim.maxtime, len(U_std))
 
     fig, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(U_std, CURVE_TYPE, label = 'U std')
-    ax.plot(V_std, CURVE_TYPE, label = 'V std')
+    ax.plot(xaxis, U_std, CURVE_TYPE, label = 'U std')
+    ax.plot(xaxis, V_std, CURVE_TYPE, label = 'V std')
     ax.legend()
     ax.set_xlabel('time (records)', fontsize = 11)
     ax.title.set_text('std_dev over time')
@@ -385,12 +388,14 @@ def pi_dyna(sim, interval = 20, grid = True):
         total_curve.append(U_curve[-1] + V_curve[-1])
         
     #### plot ####    
+    xaxis = np.linspace(0, sim.maxtime, len(U_curve))
     
     fig, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(U_curve, CURVE_TYPE, label = 'U_pi')
-    ax.plot(V_curve, CURVE_TYPE, label = 'V_pi')
-    ax.plot(total_curve, CURVE_TYPE, label = 'total')
+    ax.plot(xaxis, U_curve, CURVE_TYPE, label = 'U_pi')
+    ax.plot(xaxis, V_curve, CURVE_TYPE, label = 'V_pi')
+    ax.plot(xaxis, total_curve, CURVE_TYPE, label = 'total')
+    ax.set_xlim(0, sim.maxtime)
     ax.title.set_text('U&V _pi over time')
     ax.legend()
 
@@ -399,14 +404,15 @@ def pi_dyna(sim, interval = 20, grid = True):
 
 
 
-def pi_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
+def pi_hist(sim, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end = 1.0):
     '''
-    Makes histograms of U's and V's payoffs in a sepcified interval
+    Makes deensity histograms of U's and V's payoffs in a sepcified interval.
+    Sometimes it may not be shown in density plots due to matplotlib features.
     
     Returns:
         fig1, fig2:     histogram of U's and V's payoff.
     '''
-    
+
     start_index = int(start * sim.max_record)
     end_index = int(end * sim.max_record)
 
@@ -455,11 +461,12 @@ def pi_std(sim, interval = 20, grid = True):
         V_pi_std.append(np.std(V_pi_ave))
     
     #### plot ####
+    xaxis = np.linspace(0, sim.maxtime, len(U_pi_std))
     
     fig, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(U_pi_std, CURVE_TYPE, label = 'U_pi std')
-    ax.plot(V_pi_std, CURVE_TYPE, label = 'V_pi std')
+    ax.plot(xaxis, U_pi_std, CURVE_TYPE, label = 'U_pi std')
+    ax.plot(xaxis, V_pi_std, CURVE_TYPE, label = 'V_pi std')
     ax.legend()
     ax.set_xlabel('time (records)', fontsize = 11)
     ax.title.set_text('std over time')

@@ -24,6 +24,11 @@ def save_data(sim, dirs = '', print_msg = True):
         print_msg:  Whether to print message after saving.
     '''
 
+    try:
+        _ = sim.N
+    except AttributeError:
+        raise ValueError('sim is not a simulation object')
+
     if dirs != '':
         # add slash '/'
         if dirs[:-1] != '/':
@@ -101,12 +106,18 @@ def read_data(dirs):
     data = json.loads(data_json)
 
     # inputs
-    sim = model.simulation(N = data[0][0], M = data[0][1], maxtime = data[0][2], record_itv = data[0][3],
-                           sim_time = data[0][4], boundary = data[0][5], I = data[0][6], X = data[0][7], P = data[0][8], 
-                           print_pct = data[1][0], seed = data[1][1], UV_dtype = data[1][2], pi_dtype = data[1][3])
+    try:
+        sim = model.simulation(N = data[0][0], M = data[0][1], maxtime = data[0][2], record_itv = data[0][3],
+                            sim_time = data[0][4], boundary = data[0][5], I = data[0][6], X = data[0][7], P = data[0][8], 
+                            print_pct = data[1][0], seed = data[1][1], UV_dtype = data[1][2], pi_dtype = data[1][3])
+    except:
+        raise ValueError('Invalid input parameters saved in data')
 
     # outputs
-    sim.set_data(False, data[2][0], data[2][1], data[2][2], data[2][3], data[2][4], data[2][5])
+    try:
+        sim.set_data(False, data[2][0], data[2][1], data[2][2], data[2][3], data[2][4], data[2][5])
+    except:
+        raise ValueError('Invalid simulation results saved in data')
     
     return sim
     

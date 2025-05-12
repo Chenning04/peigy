@@ -260,7 +260,7 @@ class simulation:
     Store simulation data and input parameters.
     Initialize a simulation object to run simulations.
 
-    Class Functions:
+    Public Class Functions:
 
         __init__:
             Create a simulation object. Also initialize data storage.
@@ -270,20 +270,23 @@ class simulation:
 
         copy:
             Return a deep copy of self. Can choose whether to copy data as well. Default is to copy.
-        
-        init_storage:
-            Initialize storage, i.e. U, V, U_pi, V_pi.
 
-        calculate_ave:
-            Every round of single_test ADDS data to their corresponding place. So we need to divide the sum by sim_time after simulations finish.
-        
+        clear:
+            clear all data stored, set U, V, U_pi, V_pi to zero arrays
+
         change_maxtime:
             Changes maxtime of self. Update data storage as well.
+
+        set_seed:
+            Set a new seed. 
+
+        compress:
+            compress data by only storing average values
     '''
 
     def __init__(self, N, M, maxtime, record_itv, sim_time, boundary, I, X, P, print_pct = 25, seed = None, UV_dtype = UV_DTYPE, pi_dtype = PI_DTYPE):
 
-        #self.check_valid_input(N, M, maxtime, record_itv, sim_time, boundary, I, X, P, print_pct)
+        self.check_valid_input(N, M, maxtime, record_itv, sim_time, boundary, I, X, P, print_pct, seed)
         
         self.N = N                      # int, N x M is spatial dimension
         self.M = M                      # int, can't be 1. If want to make 1D space, use N = 1. And this model doesn't work for 1x1 space (causes NaN)
@@ -360,7 +363,23 @@ class simulation:
             raise TypeError('Please use an int as seed')
         if seed < 0:
             raise ValueError('Please use a non-negative int as seed.')
+        
 
+    def check_valid_data(self, data_empty, max_record, compress_itv, U, V, U_pi, V_pi):
+        # check whether a set of data is valid
+        if type(data_empty) != bool:
+            raise TypeError('data_empty not a bool')
+        
+        if type(max_record) != int:
+            raise TypeError('max_record not an int')
+        if max_record < 0:
+            raise ValueError('max_record < 0')
+        
+        if type(compress_itv) != int:
+            raise TypeError('compress_itv not an int')
+        if compress_itv < 0:
+            raise ValueError('compress_itv < 0')
+   
 
     def __str__(self):
         # print this sim in a nice format
@@ -476,9 +495,16 @@ class simulation:
         self.init_storage()
 
 
+    def clear(self):
+        # clear data by simply reseting
+        self.reset_data()
+
+
     def set_data(self, data_empty, max_record, compress_itv, U, V, U_pi, V_pi):
         # set data to the given data values
         # copies are made
+        self.check_valid_data(data_empty, max_record, compress_itv, U, V, U_pi, V_pi)
+
         self.data_empty = data_empty
         self.max_record = max_record
         self.compress_itv = compress_itv
@@ -488,7 +514,9 @@ class simulation:
         self.V_pi = np.copy(V_pi)
 
 
-    def compress_data(self, compress_itv = 5):
+    def compress(self, compress_itv = 5):
+        # compress data by only storing average values
+        
         if type(compress_itv) != int:
             raise TypeError('Please use an int as compress_itv')
         if compress_itv < 1:

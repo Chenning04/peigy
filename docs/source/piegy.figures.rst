@@ -100,8 +100,8 @@ This subsection contains the functions for plotting dynamics of certain values, 
 
 .. py:function:: figures.UV_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0)
 
-    .. line-block::
-        Make two histograms of U, V average population density in a specified time interval.
+    Make two histograms of U, V average population density in a specified time interval.
+    Sometimes it may not be shown in density plots due to matplotlib features.
 
     :param sim: where the parameters of the model and data are stored. 
     :type sim: ``piegy.model.simulation`` object
@@ -125,8 +125,8 @@ This subsection contains the functions for plotting dynamics of certain values, 
 
 .. py:function:: figures.pi_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0)
 
-    .. line-block::
-        Make two histograms of U, V average payoff density in a specified time interval.
+    Make two histograms of U, V average payoff density in a specified time interval.
+    Sometimes it may not be shown in density plots due to matplotlib features.
 
     :param sim: where the parameters of the model and data are stored. 
     :type sim: ``piegy.model.simulation`` object
@@ -179,7 +179,7 @@ This subsection contains the distribution functions, i.e., the average distribut
     :param annot: add annotations: show the exact population at each patch, passed to ``seaborn.heatmap`` function.
     :type annot: bool
 
-    :param fmt: format of the annotation numbers, passed to ``seaborn.heatmap`` function. ``'.3g'`` is for 3 significant digits.
+    :param fmt: format of the annotation numbers, passed to ``seaborn.heatmap`` function. ``'.3g'`` is for 3 significant digits. Please set ``annot`` = True first and then use ``fmt``.
     :type fmt: str
 
     :return: two heatmaps of distribution of U, V population.
@@ -215,7 +215,7 @@ This subsection contains the distribution functions, i.e., the average distribut
     :param annot: add annotations: show the exact population at each patch, passed to ``seaborn.heatmap`` function.
     :type annot: bool
 
-    :param fmt: format of the annotation numbers, passed to ``seaborn.heatmap`` function. ``'.3g'`` is for 3 significant digits.
+    :param fmt: format of the annotation numbers, passed to ``seaborn.heatmap`` function. ``'.3g'`` is for 3 significant digits. Please set ``annot`` = True first and then use ``fmt``.
     :type fmt: str
 
     :return: two heatmaps of distribution of U, V population.
@@ -331,7 +331,7 @@ Other Figures
     :param annot: Used for 2D heatmaps, whether to explicitly show numbers in every patch (add annotations), passed to ``seaborn.heatmap`` function.
     :type annot: bool
 
-    :param fmt: format of annotations. Default ".3g" is to show 3 significant digits. Passed to ``seaborn.heatmap`` function.
+    :param fmt: format of annotations. Default ".3g" is to show 3 significant digits. Passed to ``seaborn.heatmap`` function. Please set ``annot`` = True first and then use ``fmt``.
     :type fmt: str
 
     :return: two heatmaps or barplots about the distribution of U, V expected population.
@@ -409,8 +409,6 @@ Examples
     More Smooth Payoff Dynamics 
 
 .. line-block::
-    Note the x-range has decreased to around 80: that's exactly because we are using larger ``interval`` and hence fewer points to plot.
-
     You can also look at change of standard deviation by ``piegy.figures.UV_std`` and ``piegy.figures.pi_std``.
 
 |

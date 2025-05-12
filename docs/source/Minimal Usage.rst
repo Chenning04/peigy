@@ -48,8 +48,8 @@ Specifically:
 
 * ``I[i][j][0]`` is U's initial population at patch :math:`(i,j)`, and ``I[i][j][1]`` is V's initial population.
 * ``X[i][j]`` is payoff matrix flattened from the classical  :math:`2 \times 2` format, with U at first row & col, V at second row & col.
-* ``P[i][j][0]``, ``P[i][j][1]`` measure strength of migration, which we denote by :math:`\mu1`, :math:`\mu2`, for U and V, respectively. 
-    :math:`\mu1`, :math:`\mu2` are in range :math:`(0,1)`, with smaller values for weaker migration behavior, larger values on the contrary.
+* ``P[i][j][0]``, ``P[i][j][1]`` measure likelihood of migration, which we denote by :math:`\mu1`, :math:`\mu2`, for U and V, respectively. 
+    :math:`\mu1`, :math:`\mu2` are in range :math:`(0,1)`, with smaller values for weaker migration behavior, larger values on the contrary. In particular, set :math:`\mu=0` to prevent migration.
 * ``P[i][j][2]``, ``P[i][j][3]`` measure sensitivity to payoff, which we denote by :math:`w1`, :math:`w2`, for U and V, respectively.
     :math:`w1`, :math:`w2` can be any non-negative number. A typical range is :math:`[0, 1600]`, with smaller values for lower sensitivity to payoff, larger values on the contrary. In particular, set :math:`w=0` for pure random walk.
 * ``P[i][j][2]``, ``P[i][j][3]`` measure carrying capacity, which we denote by :math:`\kappa1`, :math:`\kappa2`, respectively.

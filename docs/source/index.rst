@@ -15,7 +15,7 @@ Contains a stochastic model and analytic tools.
 
 Full name: *Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory*
 
-Test PyPI page: `piegy at Test-PyPI <https://test.pypi.org/project/piegy/>`_.
+Test PyPI page: `piegy at TestPyPI <https://test.pypi.org/project/piegy/>`_.
 
 .. note::
    Still under debugging
