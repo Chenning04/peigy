@@ -328,13 +328,13 @@ class simulation:
         if (N == 1) and (M == 1):
             raise ValueError('Model fails for 1x1 space')
         if (M == 1):
-            raise ValueError('Please use N == 1 for 1D space.')
+            raise ValueError('Please set N = 1 for 1D space.')
         if maxtime <= 0:
-            raise ValueError('maxtime <= 0, simulation won\'t run at all')
+            raise ValueError('Please set a positive number for maxtime')
         if record_itv <= 0:
-            raise ValueError('record_itv <= 0, will cause zero division error for data storage')
+            raise ValueError('Please set a positive number for record_itv')
         if sim_time <= 0:
-            raise ValueError('sim_time <= 0, simulation won\'t run at all')
+            raise ValueError('Please set a positive number for sim_time')
         if type(boundary) != bool:
             raise TypeError('boundary not a bool. Please use True for zero-flux (with boundary) or False for periodical (no boundary)')
         
@@ -354,7 +354,7 @@ class simulation:
             raise ValueError('Please set P as a N x M x 6 shape list or array. 6 is for mu1, mu2, w1, w2, kappa1, kappa2')
         
         if print_pct <= 0:
-            raise ValueError('Please use an int > 0 for print_pct')
+            raise ValueError('Please use an int > 0 for print_pct or None for not printing progress.')
         
         if type(seed) != int:
             raise TypeError('Please use an int as seed')
@@ -379,7 +379,7 @@ class simulation:
         self_str += 'compress_itv = ' + str(self.compress_itv) + '\n'
         self_str += '\n'
 
-        # check whether I, X, P all same (same across patches)
+        # check whether I, X, P all same (compare all patches to (0, 0))
         I_same = True
         X_same = True
         P_same = True
@@ -492,7 +492,7 @@ class simulation:
         if type(compress_itv) != int:
             raise TypeError('Please use an int as compress_itv')
         if compress_itv < 1:
-            raise ValueError('Please reduce data by some >= 1 record_itv')
+            raise ValueError('Please use record_itv >= 1')
         if compress_itv == 1:
             return
         

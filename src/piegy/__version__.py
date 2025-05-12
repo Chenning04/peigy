@@ -1,4 +1,4 @@
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 '''
 version history:
@@ -9,5 +9,6 @@ version history:
 0.1.3: restructuring package
 0.1.4 ~ 0.1.6: fixing moviepy import issue
 0.1.7: changed name back to 'piegy'
+0.1.8: updated installation in README
 
 '''

@@ -9,8 +9,8 @@
 project = 'piegy'
 copyright = '2025, piegy Authors'
 author = 'piegy Authors'
-release = 'v0.1.7'
-version = '0.1.7'
+release = 'v0.1.8'
+version = '0.1.8'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
