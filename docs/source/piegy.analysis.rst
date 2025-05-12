@@ -73,7 +73,7 @@ This module contains several analysis tools for simulation results.
 Examples
 ----------
 
-Here are some usage examples for the ``piegy.analysis`` module.
+Here are some usage examples of the ``piegy.analysis`` module.
 
 First import a few necessary modules. We import ``piegy.figures`` as well because we will need some figures for cross comparison.
 
@@ -86,9 +86,8 @@ First import a few necessary modules. We import ``piegy.figures`` as well becaus
 As for the model setup, the parameters are very similar to our :ref:`demo model<Demo_Params>`, except for:
 
 * Smaller spatial dimension to reduce run time. 
-* ``sim_time = 10`` to decrease randomness.
-* ``print_pct = 25`` to have fewer print lines.
-
+* ``sim_time = 10`` to reduce randomness.
+* ``print_pct = 25`` for fewer print lines.
 
 A full list is here:
 

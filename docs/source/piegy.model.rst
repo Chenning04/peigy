@@ -14,12 +14,12 @@ The simulations are computationally intensive. See brief discussion of runtime a
 .. py:class:: model.simulation(N, M, maxtime, record_itv, sim_time, boundary, I, X, P, print_pct = 25, seed = None, UV_dtype = 'float32', pi_dtype = 'float64')
 
     .. line-block::
-        A ``simulation`` object contains all the parameters and data storage bins for a model. Initialize such an object to set up your model.
+        A ``simulation`` object contains all the parameters and data storage bins for a model. Initialize such an object to set up your model. See :ref:`param explanation<IXP_explanation>` for detailed explanation of ``I``, ``X``, ``P`` parameters.
 
-    :param N: spatial dimension, number of rows of patches in space.
+    :param N: spatial dimension, number of rows of patches.
     :type N: int
     
-    :param M: spatial dimension, number of columns of patches in space.
+    :param M: spatial dimension, number of columns.
     :type M: int
 
     :param maxtime: how long you want the simulation to run.
@@ -37,7 +37,7 @@ The simulations are computationally intensive. See brief discussion of runtime a
     :param X: payoff matrices. Expect shape ``N x M x 4``. The shape 4 is for the flattened 2 x 2 payoff matrix in a patch.
     :type X: list or numpy.ndarray
 
-    :param P: patch variables. Expect shape ``N x M x 6``. There are 6 patch variables: mu1, mu2, w1, w2, kappa1, kappa2, stored in that order.
+    :param P: patch variables. Expect shape ``N x M x 6``. There are 6 patch variables: :math:`\mu1`, :math:`\mu2`, :math:`w1`, :math:`w2`, :math:`\kappa1`, :math:`\kappa2`, stored in that order.
     :type P: list or numpy.ndarray
 
     :param print_pct: print progress. Print how much percentage has finished in current round. Messages look like ``round 16, 36%``. Use ``None`` to avoid printing.
@@ -145,7 +145,7 @@ The simulations are computationally intensive. See brief discussion of runtime a
 
 .. _run:
 
-.. py:function:: model.run(sim, predict_runtime = True, message = '')
+.. py:function:: model.run(sim, predict_runtime = False, message = '')
 
     .. line-block::
         Run simulations on ``sim``. All data are stored in ``sim``, no return value.

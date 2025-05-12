@@ -3,7 +3,7 @@
 Clarifications
 ==============
 
-This section provides clarifications for some possibly confusing usages and parameters.
+This section provides clarifications for potentially confusing usages and parameters.
 
 
 .. _runtime:
@@ -12,16 +12,14 @@ Runtime
 ----------
 
 The simulations are computationally intensive. 
-For example, in our :ref:`demo model<demo_params>`, there are around 230,000 time steps in total and the number of calculations is at the level of millions.
-
+For example, in our :ref:`demo model<demo_params>`, there are around 230,000 time steps in total and the total number of operations is at the level of millions.
 We're doing our best to maximize speed: the current model is about 600 times faster than our initial implementation. There might still be room for further speed boost.
 
 There are two major sources for runtime: size of model and parameters. It's easy to see larger models (i.e. larger spatial dimension and ``maxtime``) take longer runtime.
+As for the parameters, larger values of :math:`\mu1` & :math:`\mu2` and payoff matrix, smaller values of :math:`\kappa1` and :math:`\kappa2` would result in longer runtime. 
 
-As for parameters, larger values of payoff matrix and mu1, mu2, smaller values of kappa1 and kappa2 would result in longer runtime. These values are related to size of time step in our fundamental algorithm. 
-Larger (or smaller, in terms of kappa) values of these parameters would result in more time steps and hence longer runtime, even if spatial dimension and ``maxtime`` are fixed.
-
-|
+These parameters are related to the size of time step in our fundamental algorithm, 
+and change of their values would result in more time steps and hence longer runtime, even if spatial dimension and ``maxtime`` are fixed.
 
 .. _model_used:
 
@@ -46,14 +44,11 @@ Many clarifications are based on examples. We will use our :ref:`demo model<demo
 .. line-block::
     Parameter in: (``piegy.`` omitted)
     ``analysis.check_convergence``, ``test_var.var_convergence1``, ``test_var.var_convergence2``, ``figures``
-    
 
-.. line-block:: 
-    ``interval`` essentially means: take average over some data points.
+``interval`` essentially means: take average over some data points.
+It denotes the length of a "data interval". We take the average value over every such interval of data points, and work with these average values to smooth out local randomness.
 
-    It denotes the length of a "data interval". We take the average value over every such interval of data points, and work with these average values. Helps to smooth out local randomness.
-
-    For example, in our :ref:`demo model<demo_params>`, if we make a U, V payoff - time plot without taking any average (i.e., ``interval = 1``), the figure will be:
+For example, in our :ref:`demo model<demo_params>`, if we make a U, V payoff - time plot without taking any average (i.e., ``interval = 1``), the figure is:
 
 .. figure:: images/demo_model/pi_dyna_1.png
 
@@ -66,12 +61,8 @@ Many clarifications are based on examples. We will use our :ref:`demo model<demo
 
     pi_dyna with interval = 40
 
-.. line-block:: 
-    Now it looks much cleaner. 
-
-    You may notice the x-range is reduced to around 80. That is exactly because we are taking averages: every 40 original data points give a new "average point".
-
-|
+Now it looks much cleaner. 
+You may notice the x-range is reduced to around 80. That is exactly because we are taking averages: every 40 original data points give a new "average point".
 
 
 .. _compress_data:
@@ -84,32 +75,28 @@ Many clarifications are based on examples. We will use our :ref:`demo model<demo
     * parameter for ``compress_data``.
     * A ``piegy.model.simulation`` object also has ``compress_itv`` has a variable. Stores current ratio of data reduction, initialized as 1 and updated by ``compress_data``.
 
+``compress_data`` is an effort to reduce data size by saving only average values rather than every data point.
+For example, let's look at how many numbers are contained in ``sim`` (our demo model, see parameters at :ref:`Typical Params<Typical_Params>`)
 
-.. line-block::
-    ``compress_data`` is an effort to reduce data size by only saving average data rather than every data point.
-
-    For example, let's look at how many numbers are contained in ``sim`` (our demo model, see parameters at :ref:`Typical Params<Typical_Params>`)
-
-#. About ``N * M * 12`` input parameters (initial population, matrices, patch variables, etc.) This is small compared to below:
-#. For U population, ``N * M * maxtime / record_itv`` in total. That is :math:`10 \cdot 10 \cdot 3000 = 3 \cdot 10^6` in our case.
+#. We have ``N * M * 12`` input parameters (initial population, matrices, patch variables, etc.)
+#. As for the data generated during simulation, there ``N * M * maxtime / record_itv`` for U's population. That is :math:`10 \cdot 10 \cdot 3000 = 3 \cdot 10^5` in our case.
 #. And similarly for V population, U and V payoff.
 #. So we will be saving about :math:`12 \cdot 10^6` numbers in total --- that's a lot!
 
-There is indeed a way to reduce data at the expense of losing accuracy: take average every some interval of data points and save these average values. This is done by ``compress_data``.
-
+There is indeed a way to reduce data at the expense of losing accuracy: take average over every some interval of data points and save these average values. This is done by ``compress_data``.
 For example, by calling:
 
 .. code-block:: python
 
     sim.compress_data(10)
 
-we will go through every patch and takes average over every 10 original data points, store the average, then move on to the next 10.
+it goes through every patch and takes average over every 10 original data points, store the average, then move on to the next 10.
 The change is in-place, i.e., directly modifies ``sim``.
 
 Then for ``sim.U`` (U population), we used to store ``10 * 10 * 3000`` values, and now its size is reduced to ``10 * 10 * 300``. 
 In terms of the total number of data points, we only need to save :math:`12 \cdot 10^5` numbers now, reduced by 10 times.
 
-However, the actual size shown in your file system is probably not divided by 10. That may due to some ``json`` behaviors (data are stored in json format).
+However, the actual size shown in file system is probably not divided by 10. That may be due to some ``json`` behaviors (data are stored in json format).
 
 The size reduction comes at the expense of:
 
@@ -124,7 +111,6 @@ You can check the current reduction ratio by printing out ``compress_itv`` varia
 
     print(sim.compress_itv)
 
-|
 
 
 .. _interval_compress_itv:
@@ -150,7 +136,7 @@ Our codes are specifically designed to accommodate both two intervals, in the fo
     and then proceed. So that we will still be taking average over the same number of data points (in terms of the original data).
 #. If ``compress_itv`` is larger than ``interval``, the above code would result in the new ``interval`` being 0. We then set it to 1 and print a warning message: data is coarser than the expected interval.
 
-|
+
 
 .. _start_end:
 
@@ -162,14 +148,12 @@ Our codes are specifically designed to accommodate both two intervals, in the fo
     ``analysis.check_convergence``, ``figures``, ``test_var``
 
 .. line-block::
-    The ``start`` and ``end`` parameters specify two time points by pointing to some proportion of maxtime.
+    The ``start`` and ``end`` parameters point to some proportion of maxtime.
     They are combined together to specify a time interval, with ``start`` being the lower bound and ``end`` being upper bound.
 
     For example, for ``maxtime`` = 300 in the our :ref:`demo model<demo_params>`, ``start`` = 0.9 points to the time point at 300 * 0.9 = 270, and ``end`` = 1.0 points to 300 * 1.0 = 300.
     
-    We can then specify a time interval of 270~300 by combining ``start`` and ``end``, essentially the last 10% of time.
-
-|
+    We can then specify a time interval of :math:`(270, 300)` by combining ``start`` and ``end``, essentially the last 10% of time.
 
 .. _convergence_fluc:
 
@@ -186,8 +170,8 @@ Convergence and ``fluc``
     The implementation is:
 
 #. For U population:
-#. Get the average data points based on ``interval`` param (all 3 functions have this paramter).
-#. Get the max and min of the average data
+#. Get average data based on the ``interval`` param (all 3 functions have this paramter).
+#. Get the max and min of the average data.
 #. Fluctuation of U is then given by :math:`\frac{(max - min)}{min}`. Similarly for V. 
 #. Consider the result convergent if both fluctuations are less than ``fluc``.
 

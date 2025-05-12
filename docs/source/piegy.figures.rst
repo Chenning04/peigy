@@ -391,7 +391,7 @@ Examples
 
 .. code-block:: python
 
-    pi_dyna = figures.UV_dyna(sim, interval = 10, grid = True)
+    pi_dyna = figures.pi_dyna(sim, interval = 10, grid = True)
 
 .. figure:: images/demo_model/pi_dyna_10.png
 
@@ -402,7 +402,7 @@ Examples
 
 .. code-block:: python
 
-    fig_pi2 = figures.UV_dyna(sim, interval = 40, grid = True)
+    fig_pi2 = figures.pi_dyna(sim, interval = 40, grid = True)
 
 .. figure:: images/demo_model/pi_dyna_40.png
 
@@ -471,5 +471,4 @@ Let's visualize the correlation with scatter plots. Call ``piegy.figures.UV_pi``
 
     V Population - Payoff Correlation
 
-So far we have made lots of plots about this simulation and walked you through the majority of our ``piegy.figures`` functions.
-Explore the rest as well!
+So far we have introduced most of our ``piegy.figures`` functions and basic usages. Explore the rest as well!

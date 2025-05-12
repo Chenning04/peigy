@@ -62,6 +62,6 @@ You can read data by:
 
     sim2 = read_data('some_directory')
 
-Please pass in the same directory name as you used to save ``sim``.
+Please pass in the same directory name as the one you used to save ``sim``.
 
 Note that the data size can be very large. You can reduce size at the expense of losing accuracy by calling ``compress_data`` method of :ref:`piegy.model.simulation <simulation>`

@@ -6,7 +6,7 @@ piegy provides a stochastic model for simulating species evolution in a 2D space
 ## Installation
 
 ```bash
-pip install git+https://github.com/Chenning04/piegy.git
+pip install -i https://test.pypi.org/simple/ piegy
 ```
 
 ## Documentation and Source

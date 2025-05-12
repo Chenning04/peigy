@@ -3,7 +3,7 @@
 Minimal Usage
 ================
 
-This section provides a minimum usage of the ``piegy`` package.
+This section provides a minimal usage of the ``piegy`` package.
 
 .. line-block::
     This short demo uses the following ``piegy`` modules:
@@ -17,9 +17,9 @@ This section provides a minimum usage of the ``piegy`` package.
 
 
 .. line-block::
-    We first define the parameters of our model: spatial dimension, payoff matrices, boundary conditions, ...
+    We first define the parameters of our model: spatial dimension, payoff matrices, boundary conditions, etc.
     
-    By our payoff matrices, U stands for predators, V stands for preys.
+    We use U to denote preys, V to predators.
 
 .. code-block:: python
 
@@ -27,8 +27,8 @@ This section provides a minimum usage of the ``piegy`` package.
     M = 5               # Number of cols
     maxtime = 300       # how long you want the model to run
     record_itv = 0.1    # how often to record data.
-    sim_time = 5        # repeat the simulation a few times
-    boundary = True     # boundary condition.
+    sim_time = 5        # repeat the simulation 5 times
+    boundary = True     # zero-flux boundary condition.
 
     # initial population for the N x M patches. 
     I = [[[44, 22] for _ in range(M)] for _ in range(N)]
@@ -41,6 +41,19 @@ This section provides a minimum usage of the ``piegy`` package.
 
     # seed for random numbers
     seed = 36
+
+.. _IXP_explanation:
+
+Specifically:
+
+* ``I[i][j][0]`` is U's initial population at patch :math:`(i,j)`, and ``I[i][j][1]`` is V's initial population.
+* ``X[i][j]`` is payoff matrix flattened from the classical  :math:`2 \times 2` format, with U at first row & col, V at second row & col.
+* ``P[i][j][0]``, ``P[i][j][1]`` measure strength of migration, which we denote by :math:`\mu1`, :math:`\mu2`, for U and V, respectively. 
+    :math:`\mu1`, :math:`\mu2` are in range :math:`(0,1)`, with smaller values for weaker migration behavior, larger values on the contrary.
+* ``P[i][j][2]``, ``P[i][j][3]`` measure sensitivity to payoff, which we denote by :math:`w1`, :math:`w2`, for U and V, respectively.
+    :math:`w1`, :math:`w2` can be any non-negative number. A typical range is :math:`[0, 1600]`, with smaller values for lower sensitivity to payoff, larger values on the contrary. In particular, set :math:`w=0` for pure random walk.
+* ``P[i][j][2]``, ``P[i][j][3]`` measure carrying capacity, which we denote by :math:`\kappa1`, :math:`\kappa2`, respectively.
+    :math:`\kappa1`, :math:`\kappa2` can also be any non-negative number, while we recommend around :math:`0.001`. Too large :math:`\kappa` values lead to very small equilibrium population and may cause numerical instability.
 
 .. line-block::
     Then use these parameters to initialize a ``piegy.model.simulation`` object:
@@ -57,10 +70,9 @@ This section provides a minimum usage of the ``piegy`` package.
     model.run(sim)
 
 .. line-block::
-    This will might take a while. You can see how much runtime it took after simulation is done.
+    This might take a while. You can see how much runtime it took after simulation is done.
 
-    Once the simulation completes, we can analyze the results with a wide range of tool kits provided by our ``piegy`` package. 
-    For example, a simple curve to show population dynamics:
+    Once the simulation completes, we can analyze the results with a wide range of tools provided by our ``piegy`` package. For example, use a simple curve to show population dynamics:
 
 .. code-block:: python
 
@@ -81,7 +93,7 @@ This section provides a minimum usage of the ``piegy`` package.
     fig1.savefig('UV_dynamics.png')
 
 .. line-block::
-    You may notice the the equilibrium state is almost zero --- something interesting must be happening. Let's see more by looking at population distribution heatmaps:
+    We notice the populations quickly decrease to a near-zero equilibrium -- something interesting must have happened. Let's see more by the population distribution heatmaps:
 
 .. code-block:: python
 
@@ -106,11 +118,10 @@ This section provides a minimum usage of the ``piegy`` package.
 
     Distribution of V at 95% ~ 100% maxtime
 
-.. line-block::
-    The "95.0% ~ 100.0%" means we are making heatmaps with data generated at the last 5% of ``maxtime``.
+"95.0% ~ 100.0%" means we are making heatmaps with average data generated at the last 5% of ``maxtime``.
 
-    This is interesting phenomenon: U, V start from uniform distribution, but ended with a clustering bahevior.
-    We can also see how population distribution change over time directly by making videos:
+This is interesting phenomenon: U, V start from uniform distribution, but ended up with clustering bahevior.
+We can also see how population distribution change over time directly by making videos:
 
 .. code-block:: python
 
@@ -134,10 +145,8 @@ This section provides a minimum usage of the ``piegy`` package.
 
     sim2 = read_data('demo save')
 
-.. line-block::
-    ``sim2`` will be exactly the same as ``sim`` with the same parameters and data.
+``sim2`` will be exactly the same as ``sim`` with the same parameters and data.
 
-    Here this short demo is coming to an end. We have shown how to set up a model and run simulations, basic figures and videos, and ways to save and read data. 
-
-    You can find more detailed example in the documentation of every module.
+Here this short demo is coming to an end. We have shown how to set up a model and run simulations, basic figures and videos, and ways to save and read data. 
+You can find more detailed examples in the documentation of every module.
 

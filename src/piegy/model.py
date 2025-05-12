@@ -1045,13 +1045,13 @@ def single_test(sim, front_info, end_info, update_sum_frequency, rng):
 
 
 
-def run(sim, predict_runtime = True, message = ''):
+def run(sim, predict_runtime = False, message = ''):
     '''
     Main function. Recursively calls single_test to run many simulations and then takes the average.
 
     Inputs:
         sim is a simulation object.
-        predict_runtime = True will predict how much time still needed.
+        predict_runtime = False will not predict how much time still needed, set to True if you want to see.
         message is used by some functions in figures.py to print messages.
     '''
 

@@ -11,20 +11,20 @@ Welcome to piegy documentation!
 ================================
 
 **piegy** (/'pai-uh-gee/) is a Python package for simulating the evolutionary dynamics of two species in either 1D or 2D spatial setting.
-Contains a stochastic model and analysis tools.
+Contains a stochastic model and analytic tools.
 
 Full name: *Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory*
 
-.. note::
-   By Apr 13, 2025: all current sections done. 
+Test PyPI page: `piegy at Test-PyPI <https://test.pypi.org/project/piegy/>`_.
 
-   Probably need new sections as well.
+.. note::
+   Still under debugging
 
 
 Modules
 ---------
 
-The ``piegy`` modules with examples for each.
+Documentation of the ``piegy`` modules with examples.
 
 .. toctree::
    piegy.model
