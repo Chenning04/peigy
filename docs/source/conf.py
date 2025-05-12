@@ -16,8 +16,8 @@ from piegy import __version__
 project = 'piegy'
 copyright = '2025, piegy Authors'
 author = 'piegy Authors'
-release = 'v' + __version__
-version = __version__
+release = 'v0.1.7'
+version = '0.1.7'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
