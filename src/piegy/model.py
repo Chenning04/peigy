@@ -5,24 +5,23 @@ Main Module of Stochastic Model
 Contains all the necessary tools to build a model and run simulations based on Gillespie Algorithm.
 
 Classes:
-- patch:        Simulates a single patch in the N x M space. Assume no spatial structure within a patch.
+- patch:        (Private) Simulates a single patch in the N x M space. Assume no spatial structure within a patch.
                 All spatial movements are based on patches.
 - simulation:   Stores input parameters and data generated during simulation.
 
 
 Functions:
-- find_nb_zero_flux:        Return pointers to a patch's neighbors under zero-flux (no-boundary) boundary condition.
-- find_nb_periodical:       Return pointers to a patch's neighbors under periodical (with-booundary) boundary condition.
-- find_event:               Pick a random event to happen.
-- make_signal_zero_flux:    Expand event index (return value of find_event) to a detailed signal, under zero-flux boundary condition.
-- make_signal_periodical:   Expand event index (return value of find_event) to a detailed signal, under periodical boundary condition.
-- single_init:              Initialize a single simulation. Meaning of 'single': see single_test and run.
-- single_test:              Run a single simulation.
-                            'single' means a single round of simulation. 
-                            You can run many single rounds and then take the average --- that's done by run.
+- find_nb_zero_flux:        (Private) Return pointers to a patch's neighbors under zero-flux (no-boundary) boundary condition.
+- find_nb_periodical:       (Private) Return pointers to a patch's neighbors under periodical (with-booundary) boundary condition.
+- find_event:               (Private) Pick a random event to happen.
+- make_signal_zero_flux:    (Private) Expand event index (return value of find_event) to a detailed signal, under zero-flux boundary condition.
+- make_signal_periodical:   (Private) Expand event index (return value of find_event) to a detailed signal, under periodical boundary condition.
+- single_init:              (Private) Initialize a single simulation. Meaning of 'single': see single_test and run.
+- single_test:              (Private) Run a single simulation.
+                            'single' means a single round of simulation. You can run many single rounds and then take the average --- that's done by <run> function.
 - run:                      Run multiple simulations and then take the average. All the simulation will use the same parameters.
                             Set a seed for reproducible results.
-- demo_model:           Returns a demo model (a simulation object).
+- demo_model:               Returns a demo model (a simulation object).
 
 NOTE: Only simulation class and run function are intended for direct usages.
 '''
@@ -1063,12 +1062,11 @@ def single_test(sim, front_info, end_info, update_sum_frequency, rng):
                         sim.V[i][j][k] += world[i][j].V
                         sim.U_pi[i][j][k] += world[i][j].U_pi
                         sim.V_pi[i][j][k] += world[i][j].V_pi
-            
+
     ### Large while loop ends ###
     
     if sim.print_pct != None:
         print(front_info + ' 100%' + ' ' * 20, end = '\r')  # empty spaces to overwrite predicted runtime
-    
 
 
 
@@ -1078,9 +1076,9 @@ def run(sim, predict_runtime = False, message = ''):
     Main function. Recursively calls single_test to run many simulations and then takes the average.
 
     Inputs:
-        sim is a simulation object.
-        predict_runtime = False will not predict how much time still needed, set to True if you want to see.
-        message is used by some functions in figures.py to print messages.
+    - sim is a simulation object.
+    - predict_runtime = False will not predict how much time still needed, set to True if you want to see.
+    - message is used by some functions in figures.py to print messages.
     '''
 
     if not sim.data_empty:

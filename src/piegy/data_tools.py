@@ -19,9 +19,9 @@ def save_data(sim, dirs = '', print_msg = True):
     Saves a simulation object. Data will be stored at dirs/data.json.gz
 
     Inputs:
-        sim:        Your simulation object.
-        dirs:       Where to save it.
-        print_msg:  Whether to print message after saving.
+    - sim:        Your simulation object.
+    - dirs:       Where to save it.
+    - print_msg:  Whether to print message after saving.
     '''
 
     try:
@@ -86,8 +86,11 @@ def read_data(dirs):
     Reads and returns a simulation object.
 
     Inputs:
-        dirs:       where to read from, just provide the folder-subfolder names. Don't include 'data.json.gz'
-        print_msg:  this function prints a message when the sim.compress_itv != None. Setting print_msg = False will skip ignore this message.
+    - dirs:       where to read from, just provide the folder-subfolder names. Don't include 'data.json.gz'
+    - print_msg:  this function prints a message when the sim.compress_itv != None. Setting print_msg = False will skip ignore this message.
+
+    Returns:
+    - sim: a piegy.model.simulation object read from the data.
     '''
     
     if dirs != '':

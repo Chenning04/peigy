@@ -3,23 +3,7 @@
 piegy.analysis
 ====================
 
-This module contains several analysis tools for simulation results.
-
-.. py:function:: analysis.UV_expected_val(sim)
-
-    .. line-block::
-        Calculate expected U, V population based on payoff matrices, assuming no migration or any stochastic process.
-        To differentiate from ``peigy.figures.UV_expected``, this funtion returns the exact values rather than figures.
-
-        We recommend using ``peigy.figures.UV_expected`` instead for visualization purposes. Use this function if you want the exact values.
-
-    :param sim: where the parameters of the model and data are stored. 
-    :type sim: ``piegy.model.simulation`` object
-
-    :return: two 2D arrays containing the expected population at each patch.
-    :rtype: ``numpy.ndarray``
-
-|
+This module contains analytic tools for simulation results.
 
 .. py:function:: analysis.check_convergence(sim, interval = 20, start = 0.8, fluc = 0.07)
 

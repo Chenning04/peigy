@@ -1,29 +1,14 @@
 .. _Clarifications:
 
 Clarifications
-==============
+====================
 
 This section provides clarifications for potentially confusing usages and parameters.
 
 
-.. _runtime:
+.. _Clarification_demo_model:
 
-Runtime
-----------
-
-The simulations are computationally intensive. 
-For example, in our :ref:`demo model<demo_params>`, there are around 230,000 time steps in total and the total number of operations is at the level of millions.
-We're doing our best to maximize speed: the current model is about 600 times faster than our initial implementation. There might still be room for further speed boost.
-
-There are two major sources for runtime: size of model and parameters. It's easy to see larger models (i.e. larger spatial dimension and ``maxtime``) take longer runtime.
-As for the parameters, larger values of :math:`\mu1` & :math:`\mu2` and payoff matrix, smaller values of :math:`\kappa1` and :math:`\kappa2` would result in longer runtime. 
-
-These parameters are related to the size of time step in our fundamental algorithm, 
-and change of their values would result in more time steps and hence longer runtime, even if spatial dimension and ``maxtime`` are fixed.
-
-.. _model_used:
-
-Model Used
+Demo Model
 ---------------
 
 Many clarifications are based on examples. We will use our :ref:`demo model<demo_params>` in below. You can get a copy of it by ``piegy.model.demo_model``.

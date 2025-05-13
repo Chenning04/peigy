@@ -4,11 +4,16 @@ Make mp4 videos for simulation results.
 Videos are made by:
 make every frame by figures.py functions, then put frames together into a video.
 
-Functions:
+Public Function:
+- make_video:   make video based simulation results.
+
+Private Functions
 - get_max_lim:  Get the max lim (interval) over many lims, and then expand it a bit for better accommodation.
-                    Essentially takes union of those intervals. 
+                Essentially takes union of those intervals. 
 - video_lim:    Find a large enough xlim and ylim for video.
 - sort_frames:  Put frames in order.
+other not documented here.
+
 '''
 
 
@@ -21,7 +26,7 @@ import numpy as np
 import os
 import imageio.v2 as imageio
 import re
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 
 
 # a list of supported figures
@@ -222,17 +227,17 @@ def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 
     Make a mp4 video based on simulation results.
 
     Inputs:
-        sim:            a stochastic_model.simulation object, the simulation results.
-        func_name:      what function to use to make the frames. Should be one of the functions in figures.py
-        frames:         how many frames to make. Use more frames for more smooth evolutions.
-        speed:          how long every frame should last. Use larger number for slower video.
-        dpi:            dpi of frames
-        U_color:        color for U's videos. Color maps or regular colors, based on what function you use.
-        V_color:        color for V's videos.
-        annot:          used by heatmaps. Whether to show numbers.
-        fmt:            number format
-        del_frames:     whether to delete frames after making video.
-        dirs:           where to store the frames and videos.
+    - sim:            a stochastic_model.simulation object, the simulation results.
+    - func_name:      what function to use to make the frames. Should be one of the functions in figures.py
+    - frames:         how many frames to make. Use more frames for more smooth evolutions.
+    - speed:          how long every frame should last. Use larger number for slower video.
+    - dpi:            dpi of frames
+    - U_color:        color for U's videos. Color maps or regular colors, based on what function you use.
+    - V_color:        color for V's videos.
+    - annot:          used by heatmaps. Whether to show numbers.
+    - fmt:            number format
+    - del_frames:     whether to delete frames after making video.
+    - dirs:           where to store the frames and videos.
     '''
     
     if func_name not in FUNC_DICT.keys():

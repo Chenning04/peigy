@@ -15,10 +15,31 @@ Contains a stochastic model and analytic tools.
 
 Full name: *Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory*
 
-Test PyPI page: `piegy at TestPyPI <https://test.pypi.org/project/piegy/>`_.
+GitHub repository at: `piegy-GitHub <https://github.com/Chenning04/piegy.git>`_.
+PyPI page: `piegy-PyPI <https://pypi.org/project/piegy/>`_.
 
 .. note::
    Still under debugging
+
+
+Overview & Clarifications
+------------------------------
+
+An overview of the contents of the ``piegy`` package and possibly confusing usages.
+
+.. toctree::
+   Overview
+
+   Clarifications
+
+Examples
+----------------
+
+Provides example usages, either in the minimum form or a detailed guide to all functions and class.
+
+.. toctree::
+   Minimal Usage
+   Typical Params
 
 
 Modules
@@ -39,22 +60,4 @@ Documentation of the ``piegy`` modules with examples.
 
    piegy.test_var
 
-
-Clarifications
---------------------------
-
-Provides clarifications about possibly confusing usages and parameters.
-
-.. toctree::
-   Clarifications
-
-
-Examples
-----------------
-
-Provides example usages, either in the minimum form or a detailed guide to all functions and class.
-
-.. toctree::
-   Minimal Usage
-   Typical Params
 

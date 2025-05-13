@@ -1,7 +1,7 @@
 '''
 Test how certain variables influence simulation result.
 
-Functions:
+Public Functions:
 
 Test influence of one variable:
 - test_var1:    Test how a certain patch variable (mu, w, kappa) influences results.
@@ -50,23 +50,22 @@ PATCH_VAR_DICT = {'mu1': 0, 'mu2': 1, 'w1': 2, 'w2': 3, 'kappa1': 4, 'kappa2': 5
 
 
 
-def test_var1(sim, var, values, dirs, compress_itv = 1, scale_maxtime = False, predict_runtime = True):
+def test_var1(sim, var, values, dirs, compress_itv = None, predict_runtime = False):
     '''
     Test the influence of one patch variable on simulation results.
 
     Inputs::
-        sim:                a simulation object. All tests will use parameters of sim, except for the variable to test.
-        var:                str, which patch variable to test. e.g. var can be 'mu1', 'w2', 'kappa2', ...
-        values:             1D np.array or list, what values of var to test.
-        dirs:               str, where to save data.
-        compress_itv:         int, whether to reduce data size (if not 1), passed to model.simulation.compress_data function.
-        scale_maxtime:      bool, whether to scale the maxtime of all simulations towards the input sim.
-        predict_runtime:    bool, whether to predict how much time left for each test.          
+    - sim:                a simulation object. All tests will use parameters of sim, except for the variable to test.
+    - var:                str, which patch variable to test. e.g. var can be 'mu1', 'w2', 'kappa2', ...
+    - values:             1D np.array or list, what values of var to test.
+    - dirs:               str, where to save data.
+    - compress_itv:         int, whether to reduce data size (if not 1), passed to model.simulation.compress_data function.
+    - predict_runtime:    bool, whether to predict how much time left for each test.          
 
     Returns::
-        var_dirs:           a 1D list of directories (str) where all the data are stored. 
-                            Directories have form 'mu1=0.1' 
-                            NOTE: if you accidentally lost this return value, you can retrieve it by get_dirs1.
+    - var_dirs:           a 1D list of directories (str) where all the data are stored. 
+                        Directories have form 'mu1=0.1'. 
+                        NOTE: if you accidentally lost this return value, you can retrieve it by get_dirs1.
     '''
 
     if var not in PATCH_VAR_DICT.keys():
@@ -84,13 +83,8 @@ def test_var1(sim, var, values, dirs, compress_itv = 1, scale_maxtime = False, p
             for j in range(sim.M):
                 sim2.P[i][j][PATCH_VAR_DICT[var]] = values[k]
 
-        scale_time_info = ''
-        if scale_maxtime:
-            analysis.scale_maxtime(sim2, sim, scale_interval = True)
-            scale_time_info = ', maxt=' + str(round(sim2.maxtime, 2))
-
         try:
-            model.run(sim2, predict_runtime, message = current_var_str + scale_time_info + ', ')
+            model.run(sim2, predict_runtime, message = current_var_str + ', ')
             if compress_itv != None:
                 sim2.compress_data(compress_itv)
             data_t.save_data(sim2, var_dirs[k], print_msg = False)
@@ -102,23 +96,21 @@ def test_var1(sim, var, values, dirs, compress_itv = 1, scale_maxtime = False, p
 
 
 
-def test_var2(sim, var1, var2, values1, values2, dirs, compress_itv = 1, scale_maxtime = False, predict_runtime = True):
+def test_var2(sim, var1, var2, values1, values2, dirs, compress_itv = None, predict_runtime = False):
     '''
     Two-variable version of test_var1. Test the influence of two varibles on simulation results.
 
-    Parameters:
-    -----------
-      sim:      a simulation object. All tests will use the parameters of sim, except for the two vars to be tested. \n
-      var1:     str, the first variable to test. \n
-      var2:     str, the second variable to test. \n
-      values1:  1D list or np.array, values for var1. \n
-      values2:  1D list or np.array, values for var2. \n
-      dirs, compress_itv, scale_maxtime, predict_runtime:   same as test_var1 \n
+    Inputs:
+    - sim:      a simulation object. All tests will use the parameters of sim, except for the two vars to be tested.
+    - var1:     str, the first variable to test.
+    - var2:     str, the second variable to test.
+    - values1:  1D list or np.array, values for var1.
+    - values2:  1D list or np.array, values for var2.
+    - dirs, compress_itv, scale_maxtime, predict_runtime: same as in test_var1
 
     Returns:
-    --------
-    var_dirs:   2D list of directories, where all the data are stored.
-                Directories have form 'mu1=0.1, mu2=0.2' \n
+    - var_dirs:   2D list of directories, where all the data are stored.
+                Directories have form 'mu1=0.1, mu2=0.2'.
                 NOTE: if you accidentally lost this return value, you can retrieve by get_dirs2.
     '''
 
@@ -138,13 +130,8 @@ def test_var2(sim, var1, var2, values1, values2, dirs, compress_itv = 1, scale_m
                     sim2.P[i][j][PATCH_VAR_DICT[var1]] = values1[k1]
                     sim2.P[i][j][PATCH_VAR_DICT[var2]] = values2[k2]
 
-            scale_time_info = ''
-            if scale_maxtime:
-                analysis.scale_maxtime(sim2, sim, scale_interval = True)
-                scale_time_info = ', maxt=' + str(round(sim2.maxtime, 2))
-
             try:
-                model.run(sim2, predict_runtime, message = current_var_str + scale_time_info + ', ')
+                model.run(sim2, predict_runtime, message = current_var_str + ', ')
                 if compress_itv != None:
                     sim2.compress_data(compress_itv)
                 data_t.save_data(sim2, var_dirs[k1][k2], print_msg = False)
@@ -163,15 +150,15 @@ def var_UV1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'purple', 
     Make U, V - var curve in two figures, with y-axis being total population at the end of simulations, x-axis being var's values.
 
     Inputs:
-        var:        str, which variable was tested.
-        values:     1D list or np.array, which values were tested.
-        var_dirs:   return value of test_var1, a 1D list of directories where all data are stored.
-        start, end: floats, give an interval of time over which to take average and make plot.
-                    For example, start = 0.95, end = 1.0 are to take average over the last 5% time of results; 
-                    essentially plots how var influences equilibrium population.
+    - var:        str, which variable was tested.
+    - values:     1D list or np.array, which values were tested.
+    - var_dirs:   return value of test_var1, a 1D list of directories where all data are stored.
+    - start, end: floats, give an interval of time over which to take average and make plot.
+                For example, start = 0.95, end = 1.0 are to take average over the last 5% time of results; 
+                essentially plots how var influences equilibrium population.
     
     Returns:
-        fig1, fig2: two figures for U, V, respectively.
+    - fig1, fig2: two figures for U, V, respectively.
     '''
 
     # average value of U, V over the interval. One entry for one value of var
@@ -219,19 +206,19 @@ def var_UV2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
     and var1's values are represented by different curves, one curve corresponds to one value of var1.
 
     Inputs:
-        var1:       str, the first variable tested.
-        var2:       str, the second variable tested.
-        values1:    1D list or np.array, values for var1.
-        values2:    1D list or np.array, values for var2.
-        var_dirs:   return value of test_var2, a 2D list of directories where all data are stored.
-        start, end: floats, give an interval of time over which to take average and make plot.
-                    For example, start = 0.95, end = 1.0 plots the near-end population (equilibrium, if converged).
-        color:      str, what colors to use for different value of var1. Uses Matplotlib color maps. 
-                    See available color maps at: https://matplotlib.org/stable/users/explain/colors/colormaps.html
-        rgb_alpha:  the alpha value for color. Thr curves might have overlaps, recommend set a small alpha value if so.
+    - var1:       str, the first variable tested.
+    - var2:       str, the second variable tested.
+    - values1:    1D list or np.array, values for var1.
+    - values2:    1D list or np.array, values for var2.
+    - var_dirs:   return value of test_var2, a 2D list of directories where all data are stored.
+    - start, end: floats, give an interval of time over which to take average and make plot.
+                For example, start = 0.95, end = 1.0 plots the near-end population (equilibrium, if converged).
+    - color:      str, what colors to use for different value of var1. Uses Matplotlib color maps. 
+                See available color maps at: https://matplotlib.org/stable/users/explain/colors/colormaps.html
+    - rgb_alpha:  the alpha value for color. Thr curves might have overlaps, recommend set a small alpha value if so.
     
     Returns:
-        fig1, fig2: figures for U, V, respectively.
+    - fig1, fig2: figures for U, V, respectively.
     '''
 
     # average value of U, V over the interval. One entry for one values of var1, var2
@@ -290,13 +277,13 @@ def var_pi1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'violet', 
     Make U_pi, V_pi - var curves. y-axis is payoff, x-axis is values of var.
 
     Inputs:
-        var_dirs:   return value of test_var1. A 1D list of directories where all data are stored.
-        var:        str, which variable as tested.
-        values:     1D list or np.array, what values were used.
-        start, end: floats, define an interval of time over which to calculate average payoff and make plots.
+    - var_dirs:   return value of test_var1. A 1D list of directories where all data are stored.
+    - var:        str, which variable as tested.
+    - values:     1D list or np.array, what values were used.
+    - start, end: floats, define an interval of time over which to calculate average payoff and make plots.
     
     Returns:
-        fig1, fig2: figures for U, V's payoff, respectively.
+    - fig1, fig2: figures for U, V's payoff, respectively.
     '''
     
     # take average value of payoff over an interval of time
@@ -345,15 +332,15 @@ def var_pi2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
     var1 is represented by different curves. One curve corresponds to one value of var1.
 
     Inputs:
-        var_dirs:           return value of test_var2. A 2D list of directories where all data are stored.
-        var1, var2:         str, what variables were tested.
-        values1, values2:   1D lists or np.array, what values were tested.
-        start, end:         floats, define a time inteval over which to make average and make plots.
-        color:              str, Matplotlib color maps.
-        rgb_alpha:          set alpha value for curves.
+    - var_dirs:           return value of test_var2. A 2D list of directories where all data are stored.
+    - var1, var2:         str, what variables were tested.
+    - values1, values2:   1D lists or np.array, what values were tested.
+    - start, end:         floats, define a time inteval over which to make average and make plots.
+    - color:              str, Matplotlib color maps.
+    - rgb_alpha:          set alpha value for curves.
     
     Returns:
-        fig1, fig2:         U, V's payoff figures, respectively.
+    - fig1, fig2:         U, V's payoff figures, respectively.
     '''
     
     # take average value of payoff over an interval of time
@@ -415,13 +402,13 @@ def get_dirs1(var, values, dirs):
     Intended usage: retrieve the directories if you accidentally lost the return value of test_var1.
 
     Inputs:
-        var:        what variable was tested.
-        values:     what values were testsed.
-        dirs:  the directory you passed to test_var1 as 'dirs' parameter. 
-                    Essentially the root directories where data were stored.
+    - var:        what variable was tested.
+    - values:     what values were testsed.
+    - dirs:  the directory you passed to test_var1 as 'dirs' parameter. 
+                Essentially the root directories where data were stored.
 
     Returns:
-        var_dirs:   a 1D list of directories where data were stored. Has the same format as the return value of test_var1.
+    - var_dirs:   a 1D list of directories where data were stored. Has the same format as the return value of test_var1.
     '''
 
     var_dirs = []
@@ -442,16 +429,16 @@ def var_convergence1(var_dirs, interval = 20, start = 0.8, fluc = 0.07):
     Find the simulatoin results of test_var1 that diverge. 
 
     Inputs:
-        var_dirs:       Return value of test_var1
-        interval:       int. One of the inputs of model_analysis.check_convergence.
-                        The size of interval to take average over.
-        start:          (0,1) float. One of the inputs of model_analysis.check_convergence. 
-                        Convergence is expected to start from at least this point.
-        fluc:           (0,1) float. One of the inputs of model_analysis.check_convergence. 
-                        Expect the difference between any two small intervals (a quotient-form difference) should be less than fluc.
+    - var_dirs:       Return value of test_var1
+    - interval:       int. One of the inputs of model_analysis.check_convergence.
+                    The size of interval to take average over.
+    - start:          (0,1) float. One of the inputs of model_analysis.check_convergence. 
+                    Convergence is expected to start from at least this point.
+    - fluc:           (0,1) float. One of the inputs of model_analysis.check_convergence. 
+                    Expect the difference between any two small intervals (a quotient-form difference) should be less than fluc.
 
     Returns:
-        diverge_list:   A list directories where the simulation data diverge.
+    - diverge_list:   A list directories where the simulation data diverge.
     '''
 
     diverge_list = []
@@ -476,13 +463,13 @@ def get_dirs2(var1, var2, values1, values2, dirs):
     Intended usage: retrieve the directories if you accidentally lost the return value of test_var2.
 
     Inputs:
-        var1, var2:         what variables were tested.
-        values1, values2:   what values were testsed.
-        dirs:          the directory you passed to test_var2 as 'dirs' parameter. 
-                            Essentially the root directories where data were stored.
+    - var1, var2:         what variables were tested.
+    - values1, values2:   what values were testsed.
+    - dirs:          the directory you passed to test_var2 as 'dirs' parameter. 
+                        Essentially the root directories where data were stored.
 
     Returns:
-        var_dirs:   a 2D list of directories where data were stored. Has the same format as the return value of test_var2.
+    - var_dirs:   a 2D list of directories where data were stored. Has the same format as the return value of test_var2.
     '''
 
     var_dirs = [[] for i in range(len(values1))]
@@ -508,16 +495,16 @@ def var_convergence2(var_dirs, interval = 20, start = 0.8, fluc = 0.07):
     Find the simulatoin results of test_var2 that diverge.
 
     Inputs:
-        var_dirs:       Return value of test_var2
-        interval:       int. One of the inputs of model_analysis.check_convergence.
-                        The size of interval to take average over.
-        start:          (0,1) float. One of the inputs of model_analysis.check_convergence. 
-                        Convergence is expected to start from at least this point.
-        fluc:           (0,1) float. One of the inputs of model_analysis.check_convergence. 
-                        Expect the difference between any two small intervals (a quotient-form difference) should be less than fluc.
+    - var_dirs:       Return value of test_var2
+    - interval:       int. One of the inputs of model_analysis.check_convergence.
+                    The size of interval to take average over.
+    - start:          (0,1) float. One of the inputs of model_analysis.check_convergence. 
+                    Convergence is expected to start from at least this point.
+    - fluc:           (0,1) float. One of the inputs of model_analysis.check_convergence. 
+                    Expect the difference between any two small intervals (a quotient-form difference) should be less than fluc.
 
     Returns:
-        diverge_list:   A list directories where the simulation data diverge.
+    - diverge_list:   A list directories where the simulation data diverge.
     '''
 
     diverge_list = []

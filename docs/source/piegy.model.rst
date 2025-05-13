@@ -13,8 +13,8 @@ The simulations are computationally intensive. See brief discussion of runtime a
 
 .. py:class:: model.simulation(N, M, maxtime, record_itv, sim_time, boundary, I, X, P, print_pct = 25, seed = None, UV_dtype = 'float32', pi_dtype = 'float64')
 
-    .. line-block::
-        A ``simulation`` object contains all the parameters and data storage bins for a model. Initialize such an object to set up your model. See :ref:`param explanation<IXP_explanation>` for detailed explanation of ``I``, ``X``, ``P`` parameters.
+    A ``simulation`` object contains all the parameters and data storage bins for a model. Initialize such an object to set up your model. 
+    See :ref:`below<IXP_explanation>` for detailed explanation of ``I``, ``X``, ``P`` parameters. 
 
     :param N: spatial dimension, number of rows of patches.
     :type N: int
@@ -169,6 +169,28 @@ The simulations are computationally intensive. See brief discussion of runtime a
     
     :return: a demo model.
     :rtype: ``piegy.model.simulation``
+
+|
+
+.. _IXP_explanation:
+
+``I``, ``X``, ``P`` Params
+------------------------------------------
+
+There are three parameters in our model not explained in detail in the :ref:`piegy.simulation<simulation>` class above: ``I``, ``X``, ``P``, i.e., Initial Population, Payoff Matrices, and Patch Variables. 
+
+We provide detailed explanation here.
+
+* ``I`` has dimension :math:`N \times M \times 2`. ``I[i][j][0]`` is U's initial population at patch :math:`(i,j)`, and ``I[i][j][1]`` is V's initial population.
+* ``X`` has dimension :math:`N \times M \times 4`. ``X[i][j]`` is payoff matrix flattened from the classical  :math:`2 \times 2` format, with U at first row & col, V at second row & col.
+* ``P`` has dimension :math:`N \times M \times 6`. ``P[i][j][0]``, ``P[i][j][1]`` measure likelihood of migration, which we denote by :math:`\mu1`, :math:`\mu2`, for U and V, respectively. 
+    :math:`\mu1`, :math:`\mu2` are in range :math:`(0,1)`, with smaller values for weaker migration behavior, larger values on the contrary. In particular, set :math:`\mu=0` to prevent migration.
+* ``P[i][j][2]``, ``P[i][j][3]`` measure sensitivity to payoff, which we denote by :math:`w1`, :math:`w2`, for U and V, respectively.
+    :math:`w1`, :math:`w2` can be any non-negative number. A typical range is :math:`[0, 1600]`, with smaller values for lower sensitivity to payoff, larger values on the contrary. In particular, set :math:`w=0` for pure random walk.
+* ``P[i][j][2]``, ``P[i][j][3]`` measure carrying capacity, which we denote by :math:`\kappa1`, :math:`\kappa2`, respectively.
+    :math:`\kappa1`, :math:`\kappa2` can also be any non-negative number, while we recommend around :math:`0.001`. Too large :math:`\kappa` values lead to very small equilibrium population and may cause numerical instability.
+
+Note by using :math:`N \times M \times _` lists/arrays, our model allows each patch to have their independent initial population, payoff matrices, and patch variables. So don't limit to uniform setups!
 
 |
 

@@ -281,8 +281,8 @@ This subsection contains the distribution functions, i.e., the average distribut
 
 |
 
-Other Figures
--------------
+Other Functions
+--------------------
 
 .. py:function:: figures.UV_pi(sim, U_color = 'violet', V_color = 'yellowgreen', alpha = 0.25, start = 0.95, end = 1.0)
 
@@ -336,6 +336,22 @@ Other Figures
 
     :return: two heatmaps or barplots about the distribution of U, V expected population.
     :rtype: matplotlib figure
+
+|
+
+.. py:function:: figures.UV_expected_val(sim)
+
+    .. line-block::
+        Calculate expected U, V population based on payoff matrices, assuming no migration or any stochastic process.
+        To differentiate from ``peigy.figures.UV_expected``, this funtion returns the exact values rather than figures.
+
+        We recommend using ``peigy.figures.UV_expected`` instead for visualization purposes. Use this function if you want the exact values.
+
+    :param sim: where the parameters of the model and data are stored. 
+    :type sim: ``piegy.model.simulation`` object
+
+    :return: two 2D arrays containing the expected population at each patch.
+    :rtype: ``numpy.ndarray``
 
 |
 

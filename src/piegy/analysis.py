@@ -1,17 +1,19 @@
 '''
 This file contains pre-processing, post-processing, and analytical tools for simulations.
 
-Funcions:
-- rounds_expected:      Roughly calculates how many rounds are expected in a single simulation (which reflects runtime).
-                            NOTE: Very rough results, not for analytical purposes.
-- scale_maxtime:        Given two simulation objects, scale first one's maxtime towards the second, so that the two have 
-                            the same expected rounds.
-                            Intended to possibly decrease maxtime and save runtime.
+Public Funcions:
 - check_convergence:    Check whether a simulation result converges. i.e. whether U, V's fluctuation are very small.
 - combine_sim:          Combine two simulation objects and return a new one (the first two unchanged).
                         Intended usage: say you have sim1, sim2 with same parameters except for sim_time, say 10 and 20.
                                         Then combine_sim takes a weighted average (with ratio 1:2) of results and return a new sim3.
                                         So that you now have sim3 with 30 sim_time.
+
+Private Functions:
+- rounds_expected:      Roughly calculates how many rounds are expected in a single simulation (which reflects runtime).
+                        NOTE: Not well-developed. Not recommending to use.
+- scale_maxtime:        Given two simulation objects, scale first one's maxtime towards the second, so that the two have the same expected rounds.
+                        Intended to possibly decrease maxtime and save runtime.
+                        NOTE: Not well-developed. Not recommending to use.
 
 '''
 
@@ -27,9 +29,10 @@ import math
 
 def rounds_expected(sim):
     '''
+    NOTE: Not well-developed. Not recommending to use.
+
     Predict how many rounds will run in single_test. i.e., how many for loops from time = 0 to sim.maxtime.
     Calculated based on expected_UV. 
-    NOTE: very rough result, not for analyical purposes.
     '''
 
     N = sim.N
@@ -56,18 +59,18 @@ def rounds_expected(sim):
                     i_nb = nb_indices[k][0]
                     j_nb = nb_indices[k][1]
                     patch0_nb_k = model.patch(U_expected[i_nb][j_nb], V_expected[i_nb][j_nb], sim.X[i_nb][j_nb], sim.P[i_nb][j_nb])
-                    patch0_nb_k.update_pi()
+                    patch0_nb_k.update_pi_k()
                     patch0_nb.append(patch0_nb_k)
 
                 else:
                     patch0_nb.append(None)
 
             patch0.nb = patch0_nb
-            patch0.update_pi()
-            patch0.update_k()
+            patch0.update_pi_k()
             patch0.update_mig()
 
-            rates = np.concatenate((rates, patch0.get_pi_death_rates(), patch0.get_mig_rates()))
+            rates += patch0.pi_death_rates
+            rates += patch0.mig_rates
     
     delta_t_expected = (1 / sum(rates)) * math.log(1 / 0.5)
     r_expected = round(sim.maxtime / delta_t_expected)
@@ -79,10 +82,13 @@ def rounds_expected(sim):
 
 def scale_maxtime(sim1, sim2, scale_interval = True):
     '''
+    NOTE: Not well-developed. Not recommending to use.
+
     Scale sim1's maxtime towards sim2's, so they will run similar number of rounds in single_test, and hence similar runtime.
+    Intended to reduce the effect of changing params on runtime. 
     
     Input:
-        scale_interval decides whether to scale sim1's interval as well, so that the same number of data will be stored.
+    - scale_interval decides whether to scale sim1's interval as well, so that the same number of data will be stored.
     '''
 
     r_expected1 = rounds_expected(sim1)
@@ -108,11 +114,11 @@ def check_convergence(sim, interval = 20, start = 0.8, fluc = 0.07):
     Essentially find the max and min values (of population) in every small interval, and then check whether their difference > min * fluc.
 
     Inputs:
-        sim: a simulation object
-        interval: int, how many records to take average over,
-                  and then compare this "local mean" with "whole-tail mean" and expect the difference to be less than fluc.
-        start: (0, 1) float, decides where you expect to check convergence from. Smaller start needs earlier convergence.
-        fluc: (0, 1) float. How much fluctuation is allowed between the average value of a small interval and the mean.
+    - sim: a simulation object
+    - interval: int, how many records to take average over,
+                and then compare this "local mean" with "whole-tail mean" and expect the difference to be less than fluc.
+    - start: (0, 1) float, decides where you expect to check convergence from. Smaller start needs earlier convergence.
+    - fluc: (0, 1) float. How much fluctuation is allowed between the average value of a small interval and the mean.
     '''
 
     if (start < 0) or (start > 1):
@@ -167,29 +173,31 @@ def check_convergence(sim, interval = 20, start = 0.8, fluc = 0.07):
 def combine_sim(sim1, sim2):
     '''
     Combine data of sim1 and sim2. 
-    Intended usage: assume sim1 and sim2 has same parameters except for different sim_time, print_pct, and seed. 
+    Intended usage: assume sim1 and sim2 has the same N, M, maxtime, interval, boundary, max_record, and I, X, P
     combine_sim then combines the two results and calculate a new weighted average of the two data, return a new sim object. 
     Essentially allows breaking up many rounds of simulations into several smaller pieces, and then put together.
 
     Inputs:
-        sim1, sim2: both stochastic_model.simulation object. All input parameters the same except for sim_time, print_pct and seed.
-                    Raises error if not.
+    - sim1, sim2: both stochastic_model.simulation object. All input parameters the same except for sim_time, print_pct and seed.
+            Raises error if not.
 
     Returns:
-        sim3:       a new simulation object whose U, V, U_pi, V_pi are weighted averages of sim1 and sim2
-                    (weighted by sim_time). 
-                    sim3.print_pct is set to sim1's, seed set to None, sim_time set to sum of sim1's and sim2's. All other params same as sim1
+
+    - sim3:       a new simulation object whose U, V, U_pi, V_pi are weighted averages of sim1 and sim2
+                (weighted by sim_time). 
+                sim3.print_pct is set to sim1's, seed set to None, sim_time set to sum of sim1's and sim2's. All other params same as sim1
     '''
     if not (sim1.N == sim2.N and
             sim1.M == sim2.M and
             sim1.maxtime == sim2.maxtime and
             sim1.record_itv == sim2.record_itv and
             sim1.boundary == sim2.boundary and
+            sim1.max_record == sim2.max_record and
             np.array_equal(sim1.I, sim2.I) and
             np.array_equal(sim1.X, sim2.X) and
             np.array_equal(sim1.P, sim2.P)):
         
-        raise ValueError('sim1 and sim2 have different input parameters (N, M, maxtime, interval, boundary, or I, X, P).')
+        raise ValueError('sim1 and sim2 have different input parameters (N, M, maxtime, interval, boundary, max_record, or I, X, P).')
 
     if sim1.seed == sim2.seed:
         raise ValueError('Cannot combine two simulations with the same seed.')

@@ -3,20 +3,19 @@ Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory
 -----------------------------------------------------------
 
 Provides:
-    1.  A stochastic model to simulate interaction between two species in a 2D space.
+    1.  A stochastic spatial model for simulating the interaction and evolution of two species in either 1D or 2D space
     2.  Plot & video functions to visualize simulation results.
-    3.  Test influence of certain variables on results.
+    3.  Module to test influence of certain variables on results.
+    4.  Data saving & reading module.
     4.  Additional analytical tools.
 
-Technical Details:
-    1.  Interaction between two spcies are simulated by a 1x4 payoff matrix, 
-        obtained by flattening the canonical 2x2 matrix.
-    2.  The random process of picking events is based on Gillespie Algorithm.
-    3.  Both 'rates' (weight of events) and time step are continuous, as defined in Gillespie Algorithm.
-    4.  Supports both 1D and 2D. For 1D case, please make N = 1. Doesn't support 1x1 spatial dimension.
+Websites:
+    - The *piegy* documentation: https://piegy.readthedocs.io/en/
+    - GitHub repository at: https://github.com/Chenning04/piegy.git
+    - PyPI page: https://pypi.org/project/piegy/
 
 
-Last update: Mar 28, 2025
+Last update: May 12, 2025
 '''
 
 from .__version__ import __version__
