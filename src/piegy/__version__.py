@@ -1,4 +1,4 @@
-__version__ = '0.1.9'
+__version__ = '1.0.0'
 
 '''
 version history:
@@ -11,5 +11,7 @@ version history:
 0.1.7: changed name back to 'piegy'
 0.1.8: updated installation in README
 0.1.9: first round of full debugging
+
+1.0.0: first version in PyPI
 
 '''
