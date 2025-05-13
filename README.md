@@ -6,6 +6,8 @@ Provides a stochastic spatial model for simulating the interaction and evolution
 
 ## Installation
 
+To install *piegy*, run the following in terminal:
+
 ```bash
 pip install piegy
 ```
