@@ -7,8 +7,8 @@
    reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
    documentation for details.
 
-Welcome to piegy documentation!
-================================
+Welcome to *piegy* documentation!
+=====================================
 
 **piegy** (/'pai-uh-gee/) is a Python package for simulating the evolutionary dynamics of two species in either 1D or 2D spatial setting.
 Contains a stochastic model and analytic tools.
