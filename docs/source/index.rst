@@ -18,8 +18,14 @@ Full name: *Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory*
 GitHub repository at: `piegy-GitHub <https://github.com/Chenning04/piegy.git>`_.
 PyPI page: `piegy-PyPI <https://pypi.org/project/piegy/>`_.
 
-.. note::
-   Still under debugging
+*Still under debugging*
+
+To install *piegy*, run the following in terminal:
+
+.. code-block:: bash
+
+   pip install piegy
+
 
 
 Overview & Clarifications

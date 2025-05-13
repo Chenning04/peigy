@@ -103,7 +103,5 @@ We can visualize the change in between by videos. Call ``piegy.videos.make_video
 We make videos in a naive approach: first make frames, and then put frames together into videos.
 The videos will be saved at ``'videos'`` directory. You can specify a location using ``dirs`` parameter.
 
-*Thinking to insert videos here*
-
 Additionally, you can also make other types of videos, such as correlation between population and payoff, by the ``func_name`` parameter.
 See the ``make_video`` function description above for detailed explanation of all parameters.
