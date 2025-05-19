@@ -14,14 +14,14 @@ pip install piegy
 
 ## Documentation and Source
 
-See source code at: [GitHub-piegy repo](https://github.com/Chenning04/piegy.git). 
-The *piegy* documentation at: [piegy docs](https://piegy.readthedocs.io/en/). 
+See source code at: [piegy GitHub repository](https://github.com/Chenning04/piegy.git). 
+The *piegy* documentation at: [piegy Documentation](https://piegy.readthedocs.io/en/). 
 
 ## How the Model Works
 
-Our model can be summarized as "classical game theory endowed with a spatial structure and payoff-driven migration rules". Consider two species, predators and preys (denote by *U* and *V*), in a rectangular region. We divide the region into N by M patches and simulate their interaction within a patch by classical game theory (i.e., payoff matrices and carrying capacity). Interactions across patches are simulated by payoff-driven migration rules. An individual migrates to a neighboring patch with probability weighted by payoff in the neighbors.
+Our model can be summarized as "classical game theory endowed with a spatial structure and payoff-driven migration rules". Consider two species, predators and preys (denoted by *U* and *V*), in a rectangular region. We divide the region into N by M patches and simulate their interaction within a patch by classical game theory (i.e., payoff matrices and carrying capacity). Interactions across patches are simulated by payoff-driven migration rules. An individual migrates to a neighboring patch with probability weighted by payoff in the neighbors.
 
-We use the Gillepie algorithm as the fundamental event-selection algorithm. At each time step, one event is selected and let happen; and step sizes are continuous, dependent on the current state in the space. Data are recorded every some specified time interval.
+We use the Gillepie algorithm as the fundamental event-selection algorithm. At each time step, one event is selected and let happen; and the step size is continuous, dependent on the current state in the space. Data are recorded every some specified time interval.
 
 ## Analytic Tools
 
@@ -48,3 +48,4 @@ The figures reveal the population dynamics and steady state distribution.
 
 - Thanks Professor Daniel Cooney at University of Illinois Urbana-Champaign. This package is developed alongside a project with Prof. Cooney and received enormous help from him.
 - Special thanks to the open-source community for making this package possible.
+
