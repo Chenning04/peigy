@@ -41,7 +41,7 @@ dynamics = figures.UV_dyna(sim)
 U_hmap, V_hmap = figures.UV_heatmap(sim)
 ```
 
-The figures reveal the population dynamics and steady state distribution.
+The figures reveal the population dynamics and steady state population distribution.
 
 
 ## Acknowledgments

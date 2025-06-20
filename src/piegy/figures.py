@@ -37,20 +37,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
 # curve type in plot
 # used by UV_dyna, UV_std, and pi_dyna
 CURVE_TYPE = '-'
 
 
 
-def UV_heatmap(sim, U_color = 'Purples', V_color = 'Greens', start = 0.95, end = 1.0, annot = False, fmt = '.3g'):
+def UV_heatmap(sim, ax_U = None, ax_V = None, U_color = 'Purples', V_color = 'Greens', start = 0.95, end = 1.0, annot = False, fmt = '.3g'):
     '''
     Makes two heatmaps for U, V average distribution over a time interval, respectively. Works best for 2D space.
     1D works as well, but figures look bad.
 
     Inputs:
         sim:        A model.simulation object.
+        ax_U, ax_V: matplotlib axes to plot on. New axes will be created if None is given.
         U_color:    Color for U's heatmap, uses matplotlib color maps.
         V_color:    Color for V's heatmap.
         start:      (0,1) float, where the interval should start from. Intended as a 'percentage'. 
@@ -60,7 +60,7 @@ def UV_heatmap(sim, U_color = 'Purples', V_color = 'Greens', start = 0.95, end =
         fmt:        Number format for annotations. How many digits you want to keep. Please set annot = True first and then use fmt.
 
     Returns:
-        fig1, fig2: Two heatmaps of U, V distribution.
+        ax_U, ax_V: matplotlib axes with heatmaps of U, V distribution plotted upon.
     '''
     
     start_index = int(start * sim.max_record)
@@ -77,20 +77,21 @@ def UV_heatmap(sim, U_color = 'Purples', V_color = 'Greens', start = 0.95, end =
     V_title = figure_t.gen_title('V', start, end)
     V_text = figure_t.gen_text(np.mean(V_ave), np.std(V_ave))
 
-    fig1 = figure_t.heatmap(U_ave, U_color, annot, fmt, U_title, U_text)
-    fig2 = figure_t.heatmap(V_ave, V_color, annot, fmt, V_title, V_text)
+    ax_U = figure_t.heatmap(U_ave, ax_U, U_color, annot, fmt, U_title, U_text)
+    ax_V = figure_t.heatmap(V_ave, ax_V, V_color, annot, fmt, V_title, V_text)
         
-    return fig1, fig2
+    return ax_U, ax_V
     
 
 
-def UV_bar(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
+def UV_bar(sim, ax_U = None, ax_V = None, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
     '''
     Makes two barplots for U, V average distribution over a time interval. Works best for 1D space.
     2D works as well, but figures look bad.
 
     Inputs:
         sim:        A model.simulation object.
+        ax_U, ax_V: matplotlib axes to plot on. New axes will be created if None is given.
         U_color:    Color of U's barplot. Uses Matplotlib colors.
                     See available colors at: https://matplotlib.org/stable/gallery/color/named_colors.html
         V_color:    Color of V's barplot. Uses Matplotlib colors.
@@ -98,7 +99,7 @@ def UV_bar(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
         end:        (0,1) float. Where you want the interval to end.
 
     Returns:
-        fig1, fig2: Two Matplotlib bar plots, for U and V, respectively.
+        ax_U, ax_V: matplotlib axes with bar plots for U and V plotted upon.
     '''
     
     start_index = int(start * sim.max_record)
@@ -114,15 +115,15 @@ def UV_bar(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
     V_title = figure_t.gen_title('V', start, end)
     V_text = figure_t.gen_text(np.mean(V_ave), np.std(V_ave))
 
-    fig1 = figure_t.bar(U_ave, color = U_color, xlabel = 'patches', ylabel = 'U', title = U_title, text = U_text)
-    fig2 = figure_t.bar(V_ave, color = V_color, xlabel = 'patches', ylabel = 'V', title = V_title, text = V_text)
+    ax_U = figure_t.bar(U_ave, ax = ax_U, color = U_color, xlabel = 'patches', ylabel = 'U', title = U_title, text = U_text)
+    ax_V = figure_t.bar(V_ave, ax = ax_V, color = V_color, xlabel = 'patches', ylabel = 'V', title = V_title, text = V_text)
 
-    return fig1, fig2
-
-
+    return ax_U, ax_V
 
 
-def UV_dyna(sim, interval = 20, grid = True):
+
+
+def UV_dyna(sim, ax = None, interval = 20, grid = True):
     '''
     Plots how total U, V change overtime.
     The curves are not directly based on every single data point. 
@@ -132,13 +133,14 @@ def UV_dyna(sim, interval = 20, grid = True):
 
     Inputs:
         sim:        A model.simulation object.
+        ax:         matplotlib ax to plot on. New ax will be created if None is given.
         interval:   How many data points to take average over. Larger value makes curves smoother, but also loses local fluctuations.
                     NOTE: this interval doesn't overlap with sim.compress_itv. 
                     e.g. you already took average over every 20 data points, then using interval <= 20 here has no smoothing effect.
         grid:       Whether to add grid lines to plot.
     
     Returns:
-        fig:        A Matplotlib figure, contains U's, V's, and U+V population.
+        ax:        matplotlib ax, contains U's, V's, and sum of U & V population.
     '''
     
     # store the average values in lists
@@ -160,26 +162,29 @@ def UV_dyna(sim, interval = 20, grid = True):
     #### plot ####   
     xaxis = np.linspace(0, sim.maxtime, len(U_curve))
 
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots()
     ax.grid(grid)
     ax.plot(xaxis, U_curve, CURVE_TYPE, label = 'U')
     ax.plot(xaxis, V_curve, CURVE_TYPE, label = 'V')
     ax.plot(xaxis, total_curve, CURVE_TYPE, label = 'total')
-    ax.title.set_text('U & V over time')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Population')
+    ax.set_title('Population U & V Over Time')
     ax.legend()
 
-    return fig
+    return ax
 
 
 
 
-def UV_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
+def UV_hist(sim, ax_U = None, ax_V = None, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0):
     '''
     Makes density histograms for U, V's average distribution over an interval.
     Sometimes it may not be shown in density plots due to matplotlib features.
 
     Returns:
-        fig1, fig2: Two Matplotlib histograms, for U and V, respectively.
+        ax_U, ax_V: matplotlib axes with heatmaps of U, V population density plotted upon.
     '''
 
     start_index = int(start * sim.max_record)
@@ -190,30 +195,32 @@ def UV_hist(sim, U_color = 'purple', V_color = 'green', start = 0.95, end = 1.0)
     
     #### plot ####
     
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel('U')
-    ax1.set_ylabel('density')
-    ax1.hist(U_ave, color = U_color, density = True)
-    ax1.title.set_text(figure_t.gen_title('U hist', start, end))
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    ax_U.set_xlabel('Population U')
+    ax_U.set_ylabel('Density')
+    ax_U.hist(U_ave, color = U_color, density = True)
+    ax_U.set_title(figure_t.gen_title('U Hist', start, end))
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel('V')
-    ax2.set_ylabel('density')
-    ax2.hist(V_ave, color = V_color, density = True)
-    ax2.title.set_text(figure_t.gen_title('V hist', start, end))
+    if ax_V == None:
+        _, ax_V = plt.subplots()
+    ax_V.set_xlabel('Population V')
+    ax_V.set_ylabel('Density')
+    ax_V.hist(V_ave, color = V_color, density = True)
+    ax_V.set_title(figure_t.gen_title('V Hist', start, end))
 
-    return fig1, fig2
+    return ax_U, ax_V
 
 
 
 
-def UV_std(sim, interval = 20, grid = True):
+def UV_std(sim, ax = None, interval = 20, grid = True):
     '''
     Plots how standard deviation of U, V change over time.
     Takes average over many small interval to smooth out local fluctuations.
 
     Returns:
-        fig:    A Matplotlib figure, contains U's and V's std curves.
+        ax:    matplotlib ax, contains U's and V's std curves.
     '''
 
     interval = figure_t.scale_interval(interval, sim.compress_itv)
@@ -232,15 +239,17 @@ def UV_std(sim, interval = 20, grid = True):
     #### plot ####
     xaxis = np.linspace(0, sim.maxtime, len(U_std))
 
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots()
     ax.grid(grid)
     ax.plot(xaxis, U_std, CURVE_TYPE, label = 'U std')
     ax.plot(xaxis, V_std, CURVE_TYPE, label = 'V std')
     ax.legend()
-    ax.set_xlabel('time (records)', fontsize = 11)
-    ax.title.set_text('std_dev over time')
-    
-    return fig
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Std Dev')
+    ax.set_title('Population Std-Dev Dynamics')
+
+    return ax
 
 
 
@@ -270,7 +279,7 @@ def UV_expected_val(sim):
 
 
 
-def UV_expected(sim, U_color = 'Purples', V_color = 'Greens', annot = False, fmt = '.3g'):
+def UV_expected(sim, ax_U = None, ax_V = None, U_color = 'Purples', V_color = 'Greens', annot = False, fmt = '.3g'):
     '''
     Calculate expected population distribution based on matrices, assuming no migration.
     For the formulas, see stochastic_mode.expected_UV
@@ -279,8 +288,8 @@ def UV_expected(sim, U_color = 'Purples', V_color = 'Greens', annot = False, fmt
         Note the colors are color maps.
     
     Returns:
-    fig1, fig2: If 2D (N and M both > 1), then fig1 and fig2 are heatmaps.
-                If 1D (N or M == 1), then fig1 and fig2 are barplots.
+    ax_U, ax_V: If 2D (N and M both > 1), then ax_U and ax_V are heatmaps.
+                If 1D (N or M == 1), then ax_U and ax_V are barplots.
     '''
     
     U_expected, V_expected = UV_expected_val(sim)
@@ -292,20 +301,20 @@ def UV_expected(sim, U_color = 'Purples', V_color = 'Greens', annot = False, fmt
     
     if (sim.N != 1) and (sim.M != 1):
         # 2D
-        fig1 = figure_t.heatmap(U_expected, U_color, annot, fmt, title = 'Expected U', text = U_text)
-        fig2 = figure_t.heatmap(V_expected, V_color, annot, fmt, title = 'Expected V', text = V_text)
+        ax_U = figure_t.heatmap(U_expected, ax_U, U_color, annot, fmt, title = 'Expected U', text = U_text)
+        ax_V = figure_t.heatmap(V_expected, ax_V, V_color, annot, fmt, title = 'Expected V', text = V_text)
 
     else:
         # 1D     
-        fig1 = figure_t.bar(U_expected.flatten(), color = U_color, xlabel = 'patches', ylabel = 'popu', title = 'Expected U', text = U_text)
-        fig2 = figure_t.bar(V_expected.flatten(), color = V_color, xlabel = 'patches', ylabel = 'popu', title = 'Expected V', text = V_text)
+        ax_U = figure_t.bar(U_expected.flatten(), ax_U, color = U_color, xlabel = 'patches', ylabel = 'popu', title = 'Expected Population U', text = U_text)
+        ax_V = figure_t.bar(V_expected.flatten(), ax_V, color = V_color, xlabel = 'patches', ylabel = 'popu', title = 'Expected Population V', text = V_text)
 
-    return fig1, fig2
-
-
+    return ax_U, ax_V
 
 
-def pi_heatmap(sim, U_color = 'BuPu', V_color = 'YlGn', start = 0.95, end = 1.0, annot = False, fmt = '.3g'):
+
+
+def pi_heatmap(sim, ax_U = None, ax_V = None, U_color = 'BuPu', V_color = 'YlGn', start = 0.95, end = 1.0, annot = False, fmt = '.3g'):
     '''
     Make heatmaps for payoff in a specified interval.
     Works best for 2D. 1D works as well, but figures look bad.
@@ -314,7 +323,7 @@ def pi_heatmap(sim, U_color = 'BuPu', V_color = 'YlGn', start = 0.95, end = 1.0,
         Note the colors are matplotlib color maps.
 
     Returns:
-        fig1, fig2: Seaborn heatmaps, for U's & V's payoff distribution, respectively.
+        ax_U, ax_V: Seaborn heatmaps, for U's & V's payoff distribution, respectively.
     '''
     
     start_index = int(sim.max_record * start)
@@ -323,26 +332,26 @@ def pi_heatmap(sim, U_color = 'BuPu', V_color = 'YlGn', start = 0.95, end = 1.0,
     U_pi_ave = figure_t.ave_interval(sim.U_pi, start_index, end_index)
     V_pi_ave = figure_t.ave_interval(sim.V_pi, start_index, end_index)
     
-    U_title = figure_t.gen_title('U_pi', start, end)
+    U_title = figure_t.gen_title('Payoff ' + r'$p_U$', start, end)
     U_text = figure_t.gen_text(np.mean(U_pi_ave), np.std(U_pi_ave))
-    V_title = figure_t.gen_title('V_pi', start, end)
+    V_title = figure_t.gen_title('Payoff ' + r'$p_V$', start, end)
     V_text = figure_t.gen_text(np.mean(V_pi_ave), np.std(V_pi_ave))
     
-    fig1 = figure_t.heatmap(U_pi_ave, U_color, annot, fmt, U_title, U_text)
-    fig2 = figure_t.heatmap(V_pi_ave, V_color, annot, fmt, V_title, V_text)
+    ax_U = figure_t.heatmap(U_pi_ave, ax_U, U_color, annot, fmt, U_title, U_text)
+    ax_V = figure_t.heatmap(V_pi_ave, ax_V, V_color, annot, fmt, V_title, V_text)
 
-    return fig1, fig2
-
-
+    return ax_U, ax_V
 
 
-def pi_bar(sim, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end = 1.0):
+
+
+def pi_bar(sim, ax_U = None, ax_V = None, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end = 1.0):
     '''
     Make barplot for payoff in a specified interval.
     Works best for 1D. 2D works as well, but figures look bad.
 
     Returns:
-        fig1, fig2: Matplotlib barplots, for U's and V's payoff distribution, respectively.
+        ax_U, ax_V: matplotlib axes with barplots of U and V payoff distribution plotted upon.
     '''
     
     start_index = int(sim.max_record * start)
@@ -351,25 +360,25 @@ def pi_bar(sim, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end =
     U_pi_ave = figure_t.ave_interval_1D(sim.U_pi, start_index, end_index)
     V_pi_ave = figure_t.ave_interval_1D(sim.V_pi, start_index, end_index)
     
-    U_title = figure_t.gen_title('U_pi', start, end)
+    U_title = figure_t.gen_title(r'$p_U$', start, end)
     U_text = figure_t.gen_text(np.mean(U_pi_ave), np.std(U_pi_ave))
-    V_title = figure_t.gen_title('V_pi', start, end)
+    V_title = figure_t.gen_title(r'$p_V$', start, end)
     V_text = figure_t.gen_text(np.mean(V_pi_ave), np.std(V_pi_ave))
     
-    fig1 = figure_t.bar(U_pi_ave, U_color, 'patches', 'pi', U_title, U_text)
-    fig2 = figure_t.bar(V_pi_ave, V_color, 'patches', 'pi', V_title, V_text)
+    ax_U = figure_t.bar(U_pi_ave, ax_U, U_color, 'Patches', 'Payoff ' + r'$p_U$', U_title, U_text)
+    ax_V = figure_t.bar(V_pi_ave, ax_V, V_color, 'Patches', 'Payoff ' + r'$p_V$', V_title, V_text)
 
-    return fig1, fig2
-
-
+    return ax_U, ax_V
 
 
-def pi_dyna(sim, interval = 20, grid = True):
+
+
+def pi_dyna(sim, ax = None, interval = 20, grid = True):
     '''
     Plot how payoffs change over time.
 
     Returns:
-        fig:    Matplotlib figure of U's, V's, and U+V payoff, either total or not.
+        ax:    matplotlib ax of U's, V's, and sum of U & V payoff.
     '''
     
     U_curve = []
@@ -390,27 +399,30 @@ def pi_dyna(sim, interval = 20, grid = True):
     #### plot ####    
     xaxis = np.linspace(0, sim.maxtime, len(U_curve))
     
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(xaxis, U_curve, CURVE_TYPE, label = 'U_pi')
-    ax.plot(xaxis, V_curve, CURVE_TYPE, label = 'V_pi')
+    ax.plot(xaxis, U_curve, CURVE_TYPE, label = r'$p_U$')
+    ax.plot(xaxis, V_curve, CURVE_TYPE, label = r'$p_V$')
     ax.plot(xaxis, total_curve, CURVE_TYPE, label = 'total')
     ax.set_xlim(0, sim.maxtime)
-    ax.title.set_text('U&V _pi over time')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Payoff')
+    ax.set_title('Payoff ' + r'$p_U$' + ' & ' + r'$p_V$' + ' over time')
     ax.legend()
 
-    return fig
+    return ax
 
 
 
 
-def pi_hist(sim, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end = 1.0):
+def pi_hist(sim, ax_U = None, ax_V = None, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end = 1.0):
     '''
     Makes deensity histograms of U's and V's payoffs in a sepcified interval.
     Sometimes it may not be shown in density plots due to matplotlib features.
     
     Returns:
-        fig1, fig2:     histogram of U's and V's payoff.
+        ax_U, ax_V:     histogram of U's and V's payoff.
     '''
 
     start_index = int(start * sim.max_record)
@@ -421,29 +433,31 @@ def pi_hist(sim, U_color = 'violet', V_color = 'yellowgreen', start = 0.95, end 
     
     #### plot ####
     
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel('U_pi')
-    ax1.set_ylabel('density')
-    ax1.hist(U_pi_ave, color = U_color, density = True)
-    ax1.title.set_text(figure_t.gen_title('U_pi hist', start, end))
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    ax_U.set_xlabel('Payoff ' + r'$p_U$')
+    ax_U.set_ylabel('Density')
+    ax_U.hist(U_pi_ave, color = U_color, density = True)
+    ax_U.set_title(figure_t.gen_title('Payoff ' + r'$p_U$' + ' Hist', start, end))
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel('V_pi')
-    ax2.set_ylabel('density')
-    ax2.hist(V_pi_ave, color = V_color, density = True)
-    ax2.title.set_text(figure_t.gen_title('V_pi hist', start, end))
+    if ax_V == None:
+        _, ax_V = plt.subplots()
+    ax_V.set_xlabel('Payoff ' + r'$p_V$')
+    ax_V.set_ylabel('Density')
+    ax_V.hist(V_pi_ave, color = V_color, density = True)
+    ax_V.set_title(figure_t.gen_title('Payoff ' + r'$p_V$' + ' Hist', start, end))
 
-    return fig1, fig2
+    return ax_U, ax_V
 
 
 
 
-def pi_std(sim, interval = 20, grid = True):
+def pi_std(sim, ax = None, interval = 20, grid = True):
     '''
     Plots how standard deviation of payoff change over time.
 
     Returns:
-        fig:    Matplotlib figure of the std of payoffs.
+        ax:    matplotlib ax of the std of payoffs.
     '''
     
     
@@ -463,26 +477,28 @@ def pi_std(sim, interval = 20, grid = True):
     #### plot ####
     xaxis = np.linspace(0, sim.maxtime, len(U_pi_std))
     
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots()
     ax.grid(grid)
-    ax.plot(xaxis, U_pi_std, CURVE_TYPE, label = 'U_pi std')
-    ax.plot(xaxis, V_pi_std, CURVE_TYPE, label = 'V_pi std')
+    ax.plot(xaxis, U_pi_std, CURVE_TYPE, label = r'$p_U$' + ' std')
+    ax.plot(xaxis, V_pi_std, CURVE_TYPE, label = r'$p_V$' + ' std')
     ax.legend()
-    ax.set_xlabel('time (records)', fontsize = 11)
-    ax.title.set_text('std over time')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Std Dev')
+    ax.set_title('Payoff Std-Dev Dynamics')
     
-    return fig
+    return ax
 
 
 
 
-def UV_pi(sim, U_color = 'violet', V_color = 'yellowgreen', alpha = 0.25, start = 0.95, end = 1.0):
+def UV_pi(sim, ax_U = None, ax_V = None, U_color = 'violet', V_color = 'yellowgreen', alpha = 0.4, start = 0.95, end = 1.0):
     '''
     Make two scatter plots: x-axes are population and y-axes are payoff in a specified time interval.
     Reveals relationship between population and payoff.
 
     Returns:
-        fig1, fig2: U's and V's population-payoff scatter plots.
+        ax_U, ax_V: matplotlib axes with U and V population-payoff scatter plots.
     '''
     
     start_index = int(start * sim.max_record)
@@ -495,9 +511,9 @@ def UV_pi(sim, U_color = 'violet', V_color = 'yellowgreen', alpha = 0.25, start 
     V_pi_ave = figure_t.ave_interval(sim.V_pi, start_index, end_index)
     
     
-    fig1 = figure_t.scatter(U_ave, U_pi_ave, U_color, alpha, xlabel = 'U', ylabel = 'U_pi', title = 'U - U_pi')
-    fig2 = figure_t.scatter(V_ave, V_pi_ave, V_color, alpha, xlabel = 'V', ylabel = 'V_pi', title = 'V - V_pi')
+    ax_U = figure_t.scatter(U_ave, U_pi_ave, ax_U, U_color, alpha, xlabel = 'U', ylabel = 'Payoff ' + r'$p_U$', title = 'U - ' + r'$p_U$')
+    ax_V = figure_t.scatter(V_ave, V_pi_ave, ax_V, V_color, alpha, xlabel = 'V', ylabel = 'Payoff ' + r'$p_V$', title = 'V - ' + r'$p_V$')
     
-    return fig1, fig2
+    return ax_U, ax_V
 
 

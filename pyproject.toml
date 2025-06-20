@@ -4,7 +4,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'piegy'
-version = '1.0.0'
+version = '1.1.0'
 description = 'Payoff-Driven Stochastic Spatial Model for Evolutionary Game Theory'
 readme = 'README.md'
 requires-python = '>=3.6'
@@ -16,7 +16,6 @@ keywords = ['Game Theory', 'Evolutionary Game Theory', 'Spatial Model', 'Stochas
 dependencies = [
     'numpy',
     'matplotlib',
-    'imageio>=2.37.0',
     'moviepy>=2.1.1',
     'seaborn>=0.13.2'
 ]

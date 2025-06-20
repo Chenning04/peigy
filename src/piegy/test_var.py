@@ -48,6 +48,10 @@ DOTTED_CURVE_TYPE = 'o-'
 # map patch_var name to index in the patch class (in stochastic_model.py)
 PATCH_VAR_DICT = {'mu1': 0, 'mu2': 1, 'w1': 2, 'w2': 3, 'kappa1': 4, 'kappa2': 5}
 
+# display name (in latex)
+PATCH_VAR_DISP = {'mu1': r'$\mu_U$', 'mu2': r'$\mu_V$', 'w1': r'$w_U$', 'w2': r'$w_V$', 
+                  'kappa1': r'$\kappa_U$', 'kappa2': r'$\kappa_V$'}
+
 
 
 def test_var1(sim, var, values, dirs, compress_itv = None, predict_runtime = False):
@@ -144,7 +148,7 @@ def test_var2(sim, var1, var2, values1, values2, dirs, compress_itv = None, pred
 
 
 
-def var_UV1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'purple', V_color = 'green'):
+def var_UV1(var, values, var_dirs, ax_U = None, ax_V = None, start = 0.95, end = 1.0, U_color = 'purple', V_color = 'green'):
     '''
     Plot function for test_var1, plot how var influences U, V population.
     Make U, V - var curve in two figures, with y-axis being total population at the end of simulations, x-axis being var's values.
@@ -153,12 +157,13 @@ def var_UV1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'purple', 
     - var:        str, which variable was tested.
     - values:     1D list or np.array, which values were tested.
     - var_dirs:   return value of test_var1, a 1D list of directories where all data are stored.
+    - ax_U, ax_V:   matplotlib axes to plot on.
     - start, end: floats, give an interval of time over which to take average and make plot.
                 For example, start = 0.95, end = 1.0 are to take average over the last 5% time of results; 
                 essentially plots how var influences equilibrium population.
     
     Returns:
-    - fig1, fig2: two figures for U, V, respectively.
+    - ax_U, ax_V: axes for U, V, respectively.
     '''
 
     # average value of U, V over the interval. One entry for one value of var
@@ -181,25 +186,28 @@ def var_UV1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'purple', 
         V_ave.append(sum(figure_t.ave_interval_1D(simk.V, start_index, end_index)) / NM)
         
     #### plot ####
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    if ax_V == None:
+        _, ax_V = plt.subplots()
+    var_disp = PATCH_VAR_DISP[var]
     
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel(var)
-    ax1.set_ylabel('U')
-    ax1.plot(values, U_ave, DOTTED_CURVE_TYPE, color = U_color)
-    ax1.title.set_text(figure_t.gen_title(var + ' - U', start, end))
+    ax_U.set_xlabel(var_disp)
+    ax_U.set_ylabel(r'$U$')
+    ax_U.plot(values, U_ave, DOTTED_CURVE_TYPE, color = U_color)
+    ax_U.set_title(figure_t.gen_title(var_disp + r'$\,-\,U$', start, end))
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel(var)
-    ax2.set_ylabel('V')
-    ax2.plot(values, V_ave, DOTTED_CURVE_TYPE, color = V_color)
-    ax2.title.set_text(figure_t.gen_title(var + ' - V', start, end))
+    ax_V.set_xlabel(var_disp)
+    ax_V.set_ylabel(r'$V$')
+    ax_V.plot(values, V_ave, DOTTED_CURVE_TYPE, color = V_color)
+    ax_V.set_title(figure_t.gen_title(var_disp + r'$\,-\,V$', start, end))
     
-    return fig1, fig2
+    return ax_U, ax_V
 
 
 
 
-def var_UV2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_color = 'viridis', V_color = 'viridis', rgb_alpha = 1):
+def var_UV2(var1, var2, values1, values2, var_dirs, ax_U = None, ax_V = None, var1_on_xaxis = True, start = 0.95, end = 1.0, U_color = 'viridis', V_color = 'viridis', rgb_alpha = 1):
     '''
     Plot function for test_var2, plot how two variables influence U, V population.
     Make U, V - var1, var2 curves. y-axis is population, x-axis is var2's values, 
@@ -211,6 +219,8 @@ def var_UV2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
     - values1:    1D list or np.array, values for var1.
     - values2:    1D list or np.array, values for var2.
     - var_dirs:   return value of test_var2, a 2D list of directories where all data are stored.
+    - ax_U, ax_V:   matplotlib axes to plot on.
+    - var1_on_xaxis:    whether to put var1 on x-axis. Set to False if not.
     - start, end: floats, give an interval of time over which to take average and make plot.
                 For example, start = 0.95, end = 1.0 plots the near-end population (equilibrium, if converged).
     - color:      str, what colors to use for different value of var1. Uses Matplotlib color maps. 
@@ -218,7 +228,7 @@ def var_UV2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
     - rgb_alpha:  the alpha value for color. Thr curves might have overlaps, recommend set a small alpha value if so.
     
     Returns:
-    - fig1, fig2: figures for U, V, respectively.
+    - ax_U, ax_V: axes for U, V, respectively.
     '''
 
     # average value of U, V over the interval. One entry for one values of var1, var2
@@ -240,38 +250,59 @@ def var_UV2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
 
             U_ave[k1].append(sum(figure_t.ave_interval_1D(simk.U, start_index, end_index)) / NM)
             V_ave[k1].append(sum(figure_t.ave_interval_1D(simk.V, start_index, end_index)) / NM)
-        
+
+    U_ave = np.array(U_ave)
+    V_ave = np.array(V_ave)
+    
     #### plot ####
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    if ax_V == None:
+        _, ax_V = plt.subplots()
+
+    var1_disp = PATCH_VAR_DISP[var1]
+    var2_disp = PATCH_VAR_DISP[var2]
     
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel(var2)
-    ax1.set_ylabel('U')
-    cmap1 = plt.get_cmap(U_color)
 
-    for k1 in range(len(values1)):
-        label = var1 + '=' + str(values1[k1])
-        color_k1 = cmap1(k1 / len(values1))[:3] + (rgb_alpha,)
-        ax1.plot(values2, U_ave[k1], DOTTED_CURVE_TYPE, label = label, color = color_k1)
-    ax1.title.set_text(figure_t.gen_title(var1 + '&' + var2 + ' - U', start, end))
-    ax1.legend(bbox_to_anchor = (1, 1))
+    cmap_U = plt.get_cmap(U_color)
+    if var1_on_xaxis:
+        for k in range(len(values2)):
+            label = var2_disp + '=' + str(values2[k])
+            color_k = cmap_U(k / len(values2))[:3] + (rgb_alpha,)
+            ax_U.plot(values1, U_ave[:, k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_U.set_xlabel(var1_disp)
+    else:
+        for k in range(len(values1)):
+            label = var1_disp + '=' + str(values1[k])
+            color_k = cmap_U(k / len(values1))[:3] + (rgb_alpha,)
+            ax_U.plot(values2, U_ave[k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_U.set_xlabel(var2_disp)
+    ax_U.set_ylabel(r'$U$')
+    ax_U.set_title(figure_t.gen_title(var1_disp + ',' + var2_disp + r'$\,-\,U$', start, end))
+    ax_U.legend()
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel(var2)
-    ax2.set_ylabel('V')
-    cmap2 = plt.get_cmap(V_color)
-
-    for k1 in range(len(values1)):
-        label = var1 + '=' + str(values1[k1])
-        color_k1 = cmap2(k1 / len(values1))[:3] + (rgb_alpha,)
-        ax2.plot(values2, V_ave[k1], DOTTED_CURVE_TYPE, label = label, color = color_k1)
-    ax2.title.set_text(figure_t.gen_title(var1 + '&' + var2 + ' - V', start, end))
-    ax2.legend(bbox_to_anchor = (1.2, 1))
+    cmap_V = plt.get_cmap(V_color)
+    if var1_on_xaxis:
+        for k in range(len(values2)):
+            label = var2_disp + '=' + str(values2[k])
+            color_k = cmap_V(k / len(values2))[:3] + (rgb_alpha,)
+            ax_V.plot(values1, V_ave[:, k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_V.set_xlabel(var1_disp)
+    else:
+        for k in range(len(values1)):
+            label = var1_disp + '=' + str(values1[k])
+            color_k = cmap_V(k / len(values1))[:3] + (rgb_alpha,)
+            ax_V.plot(values2, V_ave[k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_V.set_xlabel(var2_disp)
+    ax_V.set_ylabel(r'$V$')
+    ax_V.set_title(figure_t.gen_title(var1_disp + ',' + var2_disp + r'$\,-\,V$', start, end))
+    ax_V.legend()
     
-    return fig1, fig2
+    return ax_U, ax_V
 
 
 
-def var_pi1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'violet', V_color  = 'yellowgreen'):
+def var_pi1(var, values, var_dirs, ax_U = None, ax_V = None, start = 0.95, end = 1.0, U_color = 'violet', V_color  = 'yellowgreen'):
     '''
     Plot function for test_var1. Plot influence of var on U, V's payoff.
     Make U_pi, V_pi - var curves. y-axis is payoff, x-axis is values of var.
@@ -280,10 +311,11 @@ def var_pi1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'violet', 
     - var_dirs:   return value of test_var1. A 1D list of directories where all data are stored.
     - var:        str, which variable as tested.
     - values:     1D list or np.array, what values were used.
+    - ax_U, ax_V:   matplotlib axes to plot on.
     - start, end: floats, define an interval of time over which to calculate average payoff and make plots.
     
     Returns:
-    - fig1, fig2: figures for U, V's payoff, respectively.
+    - ax_U, ax_V: axes for U, V, respectively.
     '''
     
     # take average value of payoff over an interval of time
@@ -308,24 +340,28 @@ def var_pi1(var, values, var_dirs, start = 0.95, end = 1.0, U_color = 'violet', 
         del simk
             
     #### plot ####
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    if ax_V == None:
+        _, ax_V = plt.subplots()
+    var_disp = PATCH_VAR_DISP[var]
     
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel(var)
-    ax1.set_ylabel('U_pi')
-    ax1.plot(values, U_ave, DOTTED_CURVE_TYPE, color = U_color)
-    ax1.title.set_text(figure_t.gen_title(var + ' - U_pi', start, end))
+    ax_U.set_xlabel(var_disp)
+    ax_U.set_ylabel(r'$\pi_U$')
+    ax_U.plot(values, U_ave, DOTTED_CURVE_TYPE, color = U_color)
+    ax_U.set_title(figure_t.gen_title(var_disp + r'$\,-\,\pi_U$', start, end))
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel(var)
-    ax2.set_ylabel('V_pi')
-    ax2.plot(values, V_ave, DOTTED_CURVE_TYPE, color = V_color)
-    ax2.title.set_text(figure_t.gen_title(var  + ' - V_pi', start, end))
+    ax_V.set_xlabel(var_disp)
+    ax_V.set_ylabel(r'$\pi_V$')
+    ax_V.plot(values, V_ave, DOTTED_CURVE_TYPE, color = V_color)
+    ax_V.set_title(figure_t.gen_title(var_disp  + r'$\,-\,\pi_V$', start, end))
 
-    return fig1, fig2
-
+    return ax_U, ax_V
 
 
-def var_pi2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_color = 'viridis', V_color = 'viridis', rgb_alpha = 1):
+
+
+def var_pi2(var1, var2, values1, values2, var_dirs, ax_U = None, ax_V = None, var1_on_xaxis = True, start = 0.95, end = 1.0, U_color = 'viridis', V_color = 'viridis', rgb_alpha = 1):
     '''
     Plot function for test_var2. Plot how var1 and var2 influence payoff.
     Make U_pi, V_pi - var2 curves. y-axis is payoff, x-axis is values of var2,
@@ -335,12 +371,14 @@ def var_pi2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
     - var_dirs:           return value of test_var2. A 2D list of directories where all data are stored.
     - var1, var2:         str, what variables were tested.
     - values1, values2:   1D lists or np.array, what values were tested.
+    - ax_U, ax_V:           matplotlib axes to plot on.
+    - var1_on_xaxis:    whether to put var1 on x-axis. Set to False if not.
     - start, end:         floats, define a time inteval over which to make average and make plots.
     - color:              str, Matplotlib color maps.
     - rgb_alpha:          set alpha value for curves.
     
     Returns:
-    - fig1, fig2:         U, V's payoff figures, respectively.
+    - ax_U, ax_V:         U, V's payoff figures, respectively.
     '''
     
     # take average value of payoff over an interval of time
@@ -364,34 +402,54 @@ def var_pi2(var1, var2, values1, values2, var_dirs, start = 0.95, end = 1.0, U_c
             V_ave[k1].append(np.sum(figure_t.ave_interval(simk.V_pi, start_index, end_index)) / NM)
 
             del simk    # manually delete this large object
-        
+
+    U_ave = np.array(U_ave)
+    V_ave = np.array(V_ave)
+    
     #### plot ####
-    
-    fig1, ax1 = plt.subplots()
-    ax1.set_xlabel(var2)
-    ax1.set_ylabel('U_pi')
-    cmap1 = plt.get_cmap(U_color)
+    if ax_U == None:
+        _, ax_U = plt.subplots()
+    if ax_V == None:
+        _, ax_V = plt.subplots()
 
-    for k1 in range(len(var_dirs)):
-        label = var1 + '=' + str(values1[k1])
-        color_k1 = cmap1(k1 / len(values1))[:3] + (rgb_alpha,)
-        ax1.plot(values2, U_ave[k1], DOTTED_CURVE_TYPE, label = label, color = color_k1)
-    ax1.title.set_text(figure_t.gen_title(var1 + '&' + var2 + ' - U_pi', start, end))
-    ax1.legend(bbox_to_anchor = (1, 1))
+    var1_disp = PATCH_VAR_DISP[var1]
+    var2_disp = PATCH_VAR_DISP[var2]
     
-    fig2, ax2 = plt.subplots()
-    ax2.set_xlabel(var2)
-    ax1.set_ylabel('V_pi')
-    cmap2 = plt.get_cmap(V_color)
-
-    for k1 in range(len(var_dirs)):
-        label = var1 + '=' + str(values1[k1])
-        color_k1 = cmap2(k1 / len(values1))[:3] + (rgb_alpha,)
-        ax2.plot(values2, V_ave[k1], DOTTED_CURVE_TYPE, label = label, color = color_k1)
-    ax2.title.set_text(figure_t.gen_title(var1 + '&' + var2 + ' - V_pi', start, end))
-    ax2.legend(bbox_to_anchor = (1.2, 1))
+    cmap_U = plt.get_cmap(U_color)
+    if var1_on_xaxis:
+        for k in range(len(values2)):
+            label = var2_disp + '=' + str(values2[k])
+            color_k = cmap_U(k / len(values2))[:3] + (rgb_alpha,)
+            ax_U.plot(values1, U_ave[:, k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_U.set_xlabel(var1_disp)
+    else:
+        for k in range(len(values1)):
+            label = var1_disp + '=' + str(values1[k])
+            color_k = cmap_U(k / len(values1))[:3] + (rgb_alpha,)
+            ax_U.plot(values2, U_ave[k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_U.set_xlabel(var2_disp)
+    ax_U.set_ylabel(r'$\pi_{V}$')
+    ax_U.set_title(figure_t.gen_title(var1_disp + ',' + var2_disp + r'$\,-\,\pi_U$', start, end))
+    ax_U.legend()
     
-    return fig1, fig2
+    cmap_V = plt.get_cmap(V_color)
+    if var1_on_xaxis:
+        for k in range(len(values2)):
+            label = var2_disp + '=' + str(values2[k])
+            color_k = cmap_V(k / len(values2))[:3] + (rgb_alpha,)
+            ax_V.plot(values1, V_ave[:, k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_V.set_xlabel(var1_disp)
+    else:
+        for k in range(len(values1)):
+            label = var1_disp + '=' + str(values1[k])
+            color_k = cmap_V(k / len(values1))[:3] + (rgb_alpha,)
+            ax_V.plot(values2, V_ave[k], DOTTED_CURVE_TYPE, label = label, color = color_k)
+            ax_V.set_xlabel(var2_disp)
+    ax_V.set_ylabel(r'$\pi_{U}$')
+    ax_V.set_title(figure_t.gen_title(var1_disp + ',' + var2_disp + r'$\,-\,\pi_V$', start, end))
+    ax_V.legend()
+    
+    return ax_U, ax_V
 
 
 

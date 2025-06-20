@@ -10,6 +10,7 @@ Functions:
 - scale_interval:   scale interval if sim's data was already reduced.
 - ave_interval:     Calculates average value of data over a time interval.
 - ave_interval_1D:  Return in a 1D format.
+- config_mpl:       Configure Matplotlib parameters in a nice format
 '''
 
 
@@ -21,12 +22,13 @@ import seaborn as sns
 # default value is [0.125, 0.11, 0.9, 0.88]
 
 
-def heatmap(data, cmap = "Greens", annot = False, fmt = '.3g', title = None, text = None):
+def heatmap(data, ax = None, cmap = "Greens", annot = False, fmt = '.3g', title = None, text = None):
     '''
     Helper function for making heatmaps.
 
     Inputs:
         data:   1D data for which you want to make a heatmap. 
+        ax:     matplotlib ax to plot on. 
         cmap:   Color of heatmap. Uses matplotlib color maps
         annot:  Whether to show numbers of every block.
         fmt:    Number format for annotations. How many digits you want to keep.
@@ -37,23 +39,26 @@ def heatmap(data, cmap = "Greens", annot = False, fmt = '.3g', title = None, tex
         fig:    Seaborn heatmap.
     '''
 
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots()
+
     if text != None:
-        ax.text(0.63, 0.9, text, size = 10, linespacing = 1.5, transform = plt.gcf().transFigure)
+        ax.text(0.66, 0.9, text, size = 10, linespacing = 1.5, transform = plt.gcf().transFigure)
 
-    ax = sns.heatmap(data, cmap = cmap, annot = annot, fmt = fmt)
-    ax.title.set_text(title)
+    ax = sns.heatmap(data, ax = ax, cmap = cmap, annot = annot, fmt = fmt)
+    ax.set_title(title)
     
-    return fig
+    return ax
 
 
 
-def bar(data, color = "green", xlabel = None, ylabel = None, title = None, text = None):
+def bar(data, ax = None, color = "green", xlabel = None, ylabel = None, title = None, text = None):
     '''
     Helper Function for making barplots.
 
     Inputs:
         data:   2D data to make barplot.
+        ax:     matplotlib ax to plot on. 
         color:  Uses Matplotlib colors.
         xlabel, y_label: 
                 Label for axes.
@@ -67,44 +72,48 @@ def bar(data, color = "green", xlabel = None, ylabel = None, title = None, text 
     N = np.array(data).size
     xaxis = np.array([i for i in range(N)])
     
-    # make figure larger if has more data points
-    fig, ax = plt.subplots()
-    if N > 60:
-        fig.set_size_inches(min(N * 0.12, 9.6), 4.8)
+    if ax == None:
+        if N > 60:
+            # make figure larger if has more data points
+            _, ax = plt.subplots(figsize = (min(N * 0.107, 6.4), 4.8))
+        else:
+            _, ax = plt.subplots()
 
     if text != None:
-        ax.text(0.63, 0.9, text, size = 10, linespacing = 1.5, transform = plt.gcf().transFigure)
+        ax.text(0.66, 0.9, text, size = 10, linespacing = 1.5, transform = plt.gcf().transFigure)
 
     ax.bar(x = xaxis, height = data, color = color)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.title.set_text(title)
+    ax.set_title(title)
     
-    return fig
+    return ax
 
 
 
-def scatter(X, Y, color = "orange", alpha = 0.25, xlabel = "x", ylabel = "y", title = None):
+def scatter(X, Y, ax = None, color = "orange", alpha = 0.25, xlabel = "x", ylabel = "y", title = None):
     '''
     Helper function for makeing scatter plots.
 
     Inputs:
         X:      x-coordinates of points.
         Y:      y-coordinates of points.
+        ax:     matplotlib ax to plot on. 
         Note color is Matplotlib colors.
     
     Returns:
         fig:    A Matplotlib scatter plot.
     '''
     
-    fig, ax = plt.subplots()
+    if ax == None:
+        _, ax = plt.subplots(figsize = (7.2, 5.4))
     ax.scatter(X, Y, color = color, alpha = alpha)
     
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.title.set_text(title)
+    ax.set_title(title)
 
-    return fig
+    return ax
 
 
 
@@ -121,7 +130,7 @@ def gen_text(ave, std):
     '''
     Generate text about standard deviation info.
     '''
-    text = "ave: " + str(round(ave, 3)) + ", std: " + str(round(std, 3))
+    text = "ave=" + str(round(ave, 2)) + ", std=" + str(round(std, 2))
     return text
 
 
@@ -202,5 +211,28 @@ def scale_interval(interval, compress_itv):
         interval = 1
 
     return interval
+
+
+
+def config_mpl(mpl):
+    '''
+    Configure Matplotlib figures
+    '''
+    mpl.rcParams['savefig.dpi'] = 300
+    
+    mpl.rcParams['font.family'] = 'serif'
+    mpl.rcParams['font.serif'] = plt.rcParams['font.serif']
+    mpl.rcParams['lines.linewidth'] = 1.75
+    mpl.rcParams['font.size'] = 11
+    mpl.rcParams['axes.labelsize'] = 12
+    mpl.rcParams['xtick.major.size'] = 10
+    mpl.rcParams['ytick.major.size'] = 9
+    mpl.rcParams['xtick.minor.size'] = 4
+    mpl.rcParams['ytick.minor.size'] = 4
+
+    mpl.rcParams['xtick.major.width'] = 1.5
+    mpl.rcParams['ytick.major.width'] = 1.5
+    mpl.rcParams['xtick.minor.width'] = 1.5
+    mpl.rcParams['ytick.minor.width'] = 1.5
 
 

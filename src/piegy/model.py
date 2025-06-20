@@ -358,14 +358,11 @@ class simulation:
         if print_pct <= 0:
             raise ValueError('Please use an int > 0 for print_pct or None for not printing progress.')
         
-        if type(seed) != int:
-            raise TypeError('Please use an int as seed')
-        if seed < 0:
-            raise ValueError('Please use a non-negative int as seed.')
+        # seed is checked by number
         
 
     def check_valid_data(self, data_empty, max_record, compress_itv, U, V, U_pi, V_pi):
-        # check whether a set of data is valid
+        # check whether a set of data is valid, used when reading a saved model
         if type(data_empty) != bool:
             raise TypeError('data_empty not a bool')
         

@@ -118,12 +118,14 @@ def read_data(dirs):
 
     # outputs
     try:
-        sim.set_data(False, data[2][0], data[2][1], data[2][2], data[2][3], data[2][4], data[2][5])
+        sim.set_data(data_empty = False, max_record = data[2][0], compress_itv = data[2][1], 
+                    U = data[2][2], V = data[2][3], U_pi = data[2][4], V_pi = data[2][5])
     except:
         raise ValueError('Invalid simulation results saved in data')
     
     return sim
-    
+
+
 
 
 

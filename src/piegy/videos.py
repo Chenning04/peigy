@@ -11,22 +11,21 @@ Private Functions
 - get_max_lim:  Get the max lim (interval) over many lims, and then expand it a bit for better accommodation.
                 Essentially takes union of those intervals. 
 - video_lim:    Find a large enough xlim and ylim for video.
-- sort_frames:  Put frames in order.
-other not documented here.
+- make_mp4:     Put frames together into a mp4.
+others not documented here.
 
 '''
 
 
 from . import figures
 from .tools import file_tools as file_t
+from .tools import figure_tools as figure_t
 
-
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import imageio.v2 as imageio
-import re
-from moviepy import VideoFileClip
+from moviepy import ImageSequenceClip
 
 
 # a list of supported figures
@@ -163,15 +162,15 @@ def frame_heatmap_lim(sim, func, frames):
     V_list = []
 
     for i in range(10):
-        U_fig, V_fig = func(sim, start = i / 10, end = (i / 10 + 1 / frames))
+        fig_U, ax_U = plt.subplots()
+        fig_V, ax_V = plt.subplots()
+        ax_U, ax_V = func(sim, ax_U = ax_U, ax_V = ax_V, start = i / 10, end = (i / 10 + 1 / frames))
 
-        U_ax = U_fig.get_axes()[0]
-        U_list.append(U_ax.collections[0].get_clim())
-        V_ax = V_fig.get_axes()[0]
-        V_list.append(V_ax.collections[0].get_clim())
+        U_list.append(ax_U.collections[0].get_clim())
+        V_list.append(ax_V.collections[0].get_clim())
 
-        plt.close(U_fig)
-        plt.close(V_fig)
+        plt.close(fig_U)
+        plt.close(fig_V)
 
     U_clim = get_max_lim(U_list)
     V_clim = get_max_lim(V_list)
@@ -180,49 +179,29 @@ def frame_heatmap_lim(sim, func, frames):
 
 
 
-def sort_frames(images):
-    '''
-    Put frames in order.
 
+def make_mp4(video_dir, frame_dir, fps):
+    '''
+    Read .png from the frames folder and make into a mp4
     Inputs:
-        images: A list of dirs (frame names)
-    '''
-    numeric_part, non_numeric_part = re.match(r'(\d+) (\D+)', images).groups()
-    return (int(numeric_part), non_numeric_part)
-
-
-
-def make_mp4(dirs, frame_dirs, duration, video_name):
-    '''
-    Convert frames into a mp4 video.
-
-    Inputs:
-        dirs:       where to store the video.
-        frame_dirs: where to find frames.
-        duration:   how long the video should be.
-        video_name: name of the video.
+        video_dir:  where to save the video
+        frame_dirs: where to read frames from
+        fps:        frames per second
     '''
 
-    # png to gif
-    images = [img for img in os.listdir(frame_dirs) if img.endswith('.png')] 
-    images.sort(key = sort_frames)
-
-    image_list = []
-    for img in images:
-        img_path = os.path.join(frame_dirs, img)
-        image_list.append(imageio.imread(img_path))
-    gif_dirs = dirs + '/temp.gif'
-    imageio.mimsave(gif_dirs, image_list, format = 'gif', duration = duration)
-    
-    # gif to mp4
-    clip = VideoFileClip(gif_dirs)
-    clip.write_videofile(video_name, logger = None)
-    # delete gif
-    os.remove(gif_dirs)
+    frame_paths_incomplete = os.listdir(frame_dir)
+    frame_paths_incomplete.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+    frame_paths = []
+    for path in frame_paths_incomplete:
+        if (path[-4:] == '.png') and ('frame' in path):
+            frame_paths.append(frame_dir + '/' + path)
+    clip = ImageSequenceClip(frame_paths, fps = fps) 
+    clip.write_videofile(video_dir, logger = None)
 
 
 
-def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 120, U_color = 'Greens', V_color = 'Purples', annot = False, fmt = '.3g', del_frames = False, dirs = 'videos'):
+
+def make_video(sim, func_name = 'UV_heatmap', frames = 100, fps = 30, U_color = 'Greens', V_color = 'Purples', annot = False, fmt = '.3g', del_frames = False, dirs = 'videos'):
     '''
     Make a mp4 video based on simulation results.
 
@@ -230,8 +209,7 @@ def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 
     - sim:            a stochastic_model.simulation object, the simulation results.
     - func_name:      what function to use to make the frames. Should be one of the functions in figures.py
     - frames:         how many frames to make. Use more frames for more smooth evolutions.
-    - speed:          how long every frame should last. Use larger number for slower video.
-    - dpi:            dpi of frames
+    - fps:            frames per second.
     - U_color:        color for U's videos. Color maps or regular colors, based on what function you use.
     - V_color:        color for V's videos.
     - annot:          used by heatmaps. Whether to show numbers.
@@ -268,7 +246,6 @@ def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 
     if os.path.exists(V_frame_dirs):
         file_t.del_dirs(V_frame_dirs)
     os.makedirs(V_frame_dirs)
-
         
     #### for loop ####
     
@@ -277,30 +254,31 @@ def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 
             print('making frames', round(i / frames * 100), '%', end = '\r')
             current_progress += one_progress
         
+        fig_U, ax_U = plt.subplots(figsize = (6.4, 4.8))#, constrained_layout = True)
+        fig_V, ax_V = plt.subplots(figsize = (6.4, 4.8))#, constrained_layout = True)
+
         if 'heatmap' in func_name:
-            U_fig, V_fig = func(sim, U_color, V_color, start = i / frames, end = (i + 1) / frames, annot = annot, fmt = fmt)
+            ax_U, ax_V = func(sim, ax_U = ax_U, ax_V = ax_V, U_color = U_color, V_color = V_color, start = i / frames, end = (i + 1) / frames, annot = annot, fmt = fmt)
         else:
-            U_fig, V_fig = func(sim, U_color, V_color, start = i / frames, end = (i + 1) / frames)
-        U_ax = U_fig.get_axes()[0]
-        V_ax = V_fig.get_axes()[0]
+            ax_U, ax_V = func(sim, ax_U = ax_U, ax_V = ax_V, U_color = U_color, V_color = V_color, start = i / frames, end = (i + 1) / frames)
         
         if 'heatmap' in func_name:
-            U_ax.collections[0].set_clim(U_clim)
-            V_ax.collections[0].set_clim(V_clim)
+            ax_U.collections[0].set_clim(U_clim)
+            ax_V.collections[0].set_clim(V_clim)
         else:
             # make sure y axis not changing if not heatmap and not UV_pi
-            U_ax.set_ylim(U_ylim)
-            V_ax.set_ylim(V_ylim)
+            ax_U.set_ylim(U_ylim)
+            ax_V.set_ylim(V_ylim)
             if ('hist' in func_name) or (func_name == 'UV_pi'):
                 # need to set xlim as well for UV_pi and histograms
-                U_ax.set_xlim(U_xlim)
-                V_ax.set_xlim(V_xlim)
+                ax_V.set_xlim(U_xlim)
+                ax_V.set_xlim(V_xlim)
 
-        U_fig.savefig(U_frame_dirs + '/' + str(i) + ' U' + '.png', dpi = dpi)
-        V_fig.savefig(V_frame_dirs + '/' + str(i) + ' V' + '.png', dpi = dpi)
+        fig_U.savefig(U_frame_dirs + '/' + 'U_frame_' + str(i) + '.png', pad_inches = 0.25)
+        fig_V.savefig(V_frame_dirs + '/' + 'V_frame_' + str(i) + '.png', pad_inches = 0.25)
         
-        plt.close(U_fig)
-        plt.close(V_fig)
+        plt.close(fig_U)
+        plt.close(fig_V)
         
     #### for loop ends ####
     
@@ -308,8 +286,8 @@ def make_video(sim, func_name = 'UV_heatmap', frames = 100, speed = 1.25, dpi = 
     print('making mp4...      ', end = '\r')
     
     # make videos based on frames
-    make_mp4(dirs, U_frame_dirs, frames * speed, dirs + '/U-' + func_name + '.mp4')
-    make_mp4(dirs, V_frame_dirs, frames * speed, dirs + '/V-' + func_name + '.mp4')
+    make_mp4(dirs + '/U-' + func_name + '.mp4', U_frame_dirs, fps)
+    make_mp4(dirs + '/V-' + func_name + '.mp4', V_frame_dirs, fps)
     
     if del_frames:
         file_t.del_dirs(U_frame_dirs)
