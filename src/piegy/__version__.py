@@ -14,5 +14,6 @@ version history:
 
 1.0.0: first version in PyPI
 1.1.0: debugging. Updated a range of functions, in the following modules: figures, videos, test_var, model, figure_tools
+1.1.1: minor debugging in model module.
 
 '''

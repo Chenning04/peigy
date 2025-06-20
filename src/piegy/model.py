@@ -41,9 +41,6 @@ PI_DTYPE = 'float64'
 # data type for storing rates in single_test an single_init
 RATES_DTYPE = 'float64'
 
-# store e locally, slightly increases speed
-MATH_E = math.e
-
 
 class patch:
     '''
@@ -176,8 +173,8 @@ class patch:
 
         for i in range(4):
             if self.nb[i] != None:
-                U_weight[i] = 1 + pow(MATH_E, self.w1 * self.nb[i].U_pi)  # use your own functions!
-                V_weight[i] = 1 + pow(MATH_E, self.w2 * self.nb[i].V_pi)
+                U_weight[i] = 1 + pow(math.e, self.w1 * self.nb[i].U_pi)
+                V_weight[i] = 1 + pow(math.e, self.w2 * self.nb[i].V_pi)
 
         mu1_U = self.mu1 * self.U
         mu2_V = self.mu2 * self.V
